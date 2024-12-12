@@ -1,26 +1,33 @@
-import "./globals.css";
-import { Inter } from 'next/font/google';
-import Header from "@/components/header";
+import "./globals.css"
+import { Inter } from 'next/font/google'
+import Header from "@/components/header"
+import { AppSidebar } from "@/components/sidebar"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "My Blog",
-  description: "A simple blog built with Next.js and TypeScript",
-};
+  title: "District 300 Blog",
+  description: "A blog for Unifor Local 2002 District 300",
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en">
       <body className={`${inter.className} bg-white text-gray-800`}>
-        <Header />
-        {children}
+        <SidebarProvider defaultOpen={true}>
+          <AppSidebar />
+          <SidebarInset>
+            <Header />
+            {children}
+          </SidebarInset>
+        </SidebarProvider>
       </body>
     </html>
-  );
+  )
 }
 

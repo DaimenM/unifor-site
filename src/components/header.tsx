@@ -8,7 +8,7 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <Link href="/" className="text-2xl font-bold">
             <Image
-              src="/DISTR-300.png" 
+              src="/DISTR-300.png"
               alt="Site Logo"
               width={120}
               height={40}
@@ -17,20 +17,10 @@ export default function Header() {
             />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold">District 300</h1>
-            <h2 className="text-lg">Unifor Local 2002</h2>
+            <h1 className="text-6xl font-bold">District 300</h1>
+            <h2 className="text-3xl">Unifor Local 2002</h2>
           </div>
         </div>
-        <nav>
-          <ul className="flex space-x-4">
-            <li>
-              <Link href="/" className="hover:underline">Home</Link>
-            </li>
-            <li>
-              <Link href="/about" className="hover:underline">About</Link>
-            </li>
-          </ul>
-        </nav>
       </div>
     </header>
   );
