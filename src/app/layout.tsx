@@ -1,11 +1,8 @@
 import "./globals.css"
-import { Inter } from 'next/font/google'
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { AppSidebar } from "@/components/sidebar"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
   title: "District 300 Blog",
@@ -19,12 +16,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-white text-gray-800`}>
+      <body className="min-h-screen flex flex-col">
         <SidebarProvider defaultOpen={true}>
           <AppSidebar />
           <SidebarInset>
             <Header />
-            {children}
+            <main className="flex-grow">
+              {children}
+            </main>
             <Footer />
           </SidebarInset>
         </SidebarProvider>
