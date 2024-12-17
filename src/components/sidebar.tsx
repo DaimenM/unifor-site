@@ -12,7 +12,7 @@ import {
 
 const sidebarItems = [
   { icon: Home, label: "Home", href: "/" },
-  { icon: Info, label: "About", href: "/about" },
+  { icon: Info, label: "Contact", href: "/contact" },
   { icon: FileText, label: "The Future of AI", href: "/article/1" },
   { icon: FileText, label: "Sustainable Living", href: "/article/2" },
   { icon: FileText, label: "Remote Work Trends", href: "/article/3" },

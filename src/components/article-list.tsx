@@ -1,6 +1,7 @@
 import { Article } from "@/types/article";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
 
 type ArticleListProps = {
   articles: Article[];
@@ -12,6 +13,16 @@ export default function ArticleList({ articles }: ArticleListProps) {
       {articles.map((article) => (
         <Link href={`/article/${article.id}`} key={article.id}>
           <Card className="h-full hover:shadow-lg transition-shadow duration-200">
+            {article.images && article.images.length > 0 && (
+              <div className="relative w-full h-48 overflow-hidden">
+                <Image
+                  src={article.images[0]}
+                  alt={article.title}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
             <CardHeader>
               <CardTitle className="text-red-600">{article.title}</CardTitle>
             </CardHeader>

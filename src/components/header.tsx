@@ -22,7 +22,6 @@ export default function Header() {
               <h2 className="text-xl md:text-3xl">Unifor Local 2002</h2>
             </div>
           </div>
-          <p className="text-lg mt-2 md:hidden">416 352 2328</p>
         </div>
       </div>
     </header>

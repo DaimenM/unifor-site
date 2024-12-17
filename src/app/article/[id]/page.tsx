@@ -10,10 +10,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
-export default async function ArticlePage({ params }: { params: { id: string } }) {
+export default async function ArticlePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const id = params.id;
-  
+
   if (!id) {
     notFound();
   }
@@ -26,19 +28,25 @@ export default async function ArticlePage({ params }: { params: { id: string } }
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/">Home</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{article.title}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <div className="flex items-center gap-4 mb-6">
+        <SidebarTrigger
+          className="md:hidden text-red-600 flex-shrink-0"
+          size={"icon"}
+        />
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{article.title}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
 
       <h1 className="text-4xl font-bold text-red-600 mb-4">{article.title}</h1>
       <p className="text-gray-400 mb-8">{new Date(article.date).toLocaleDateString()}</p>
