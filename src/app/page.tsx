@@ -13,8 +13,8 @@ export default function Home() {
       <div className="sticky top-0 z-50 bg-white py-4 -mx-4 px-4">
         <div className="flex items-center gap-4">
           <SidebarTrigger
-            className="md:hidden text-red-600 flex-shrink-0"
-            size="default"
+            className="md:hidden text-red-600 flex-shrink-0 -translate-y-4"
+            size={"icon"}
           />
           <div className="flex-1">
             <SearchBar />
