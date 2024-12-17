@@ -9,7 +9,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
-import next from "next"
 
 const sidebarItems = [
   { icon: Home, label: "Home", href: "/" },
