@@ -20,7 +20,6 @@ export const articles: Article[] = [
     title: "The Rise of Remote Work",
     content: "The COVID-19 pandemic has accelerated the shift towards remote work. This article discusses the benefits and challenges of this new work paradigm...",
     images: ["/placeholder.png?height=300&width=400", "/placeholder.png?height=300&width=400"],
-    embeds: ["https://www.youtube.com/embed/dQw4w9WgXcQ"],
     date: "2023-06-05",
   },
   {
@@ -42,7 +41,6 @@ export const articles: Article[] = [
     title: "Breakthrough in Quantum Computing",
     content: "Scientists have made a significant breakthrough in quantum computing, potentially revolutionizing fields from cryptography to drug discovery...",
     images: ["/placeholder.png?height=300&width=400"],
-    embeds: ["https://www.youtube.com/embed/dQw4w9WgXcQ"],
     date: "2023-05-20",
   },
   {
@@ -64,7 +62,6 @@ export const articles: Article[] = [
     title: "The Impact of Social Media on Mental Health",
     content: "As social media usage continues to rise, its impact on mental health has become a topic of concern. This article examines both the positive and negative effects of social media...",
     images: ["/placeholder.png?height=300&width=400", "/placeholder.png?height=300&width=400"],
-    embeds: ["https://www.youtube.com/embed/dQw4w9WgXcQ"],
     date: "2023-05-05",
   },
   {
