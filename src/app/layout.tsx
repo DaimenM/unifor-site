@@ -1,6 +1,7 @@
 import "./globals.css"
 import { Inter } from 'next/font/google'
 import Header from "@/components/header"
+import Footer from "@/components/footer"
 import { AppSidebar } from "@/components/sidebar"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 
@@ -24,6 +25,7 @@ export default function RootLayout({
           <SidebarInset>
             <Header />
             {children}
+            <Footer />
           </SidebarInset>
         </SidebarProvider>
       </body>
