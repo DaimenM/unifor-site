@@ -1,6 +1,3 @@
-"use client";
-
-import * as React from "react";
 import { articles } from "@/data/articles";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -14,8 +11,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-export default function ArticlePage({ params }: { params: { id: string } }) {
-  const { id } = React.use(params);
+export default async function ArticlePage({ params }: { params: { id: string } }) {
+  const id = params.id;
   
   if (!id) {
     notFound();
