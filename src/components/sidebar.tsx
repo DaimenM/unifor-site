@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Home, FileText, Info } from 'lucide-react'
-
+import Image from "next/image";
 import {
   Sidebar,
   SidebarContent,
@@ -9,6 +9,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar"
+import next from "next"
 
 const sidebarItems = [
   { icon: Home, label: "Home", href: "/" },
@@ -29,7 +30,7 @@ export function AppSidebar() {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-red-600 text-white">
-                  <FileText className="size-4" />
+                  <Image className="rounded-lg" src="/DISTR-300.png" alt="Logo" width={30} height={30}/>
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">District 300</span>
