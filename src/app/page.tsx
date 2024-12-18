@@ -11,12 +11,15 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
 export default async function Home({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: SearchParams;
 }) {
-  const currentPage = Number(searchParams.page) || 1;
+  const searchParamsResolved = await searchParams;
+  const currentPage = Number(searchParamsResolved.page) || 1;
   const { articles, totalPages } = await getArticles(currentPage);
 
   return (
