@@ -1,20 +1,30 @@
-import { articles } from '@/data/articles';
-import { seedArticles, getAllArticles, getArticle, createArticle, deleteArticle } from '@/lib/articles';
+import { NextResponse } from 'next/server';
+import { getAllArticles, getArticle, createArticle } from '@/lib/articles';
+import { Article } from '@/types/article';
 
-// Seed your existing articles
-await seedArticles(articles);
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
 
-// Get all articles
-const allArticles = await getAllArticles();
+  if (id) {
+    const article = await getArticle(id);
+    if (!article) {
+      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+    }
+    return NextResponse.json(article);
+  }
 
-// Get a single article
-const article = await getArticle('1');
+  const articles = await getAllArticles();
+  return NextResponse.json(articles);
+}
 
-// Create a new article
-await createArticle({
-  id: '11',
-  title: 'New Article',
-  content: 'Content here...',
-  images: ['/placeholder.png'],
-  date: new Date().toISOString().split('T')[0]
-}); 
+export async function POST(request: Request) {
+  try {
+    const article: Article = await request.json();
+    await createArticle(article);
+    return NextResponse.json({ success: true });
+  } catch (err: unknown) {
+    console.error('Failed to create article:', err);
+    return NextResponse.json({ error: 'Failed to create article' }, { status: 500 });
+  }
+} 

@@ -1,9 +1,24 @@
-import { articles } from "@/data/articles";
+import { getArticles } from "@/data/articles";
 import ArticleList from "@/components/article-list";
 import SearchBar from "@/components/search-bar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
-export default function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { page?: string };
+}) {
+  const currentPage = Number(searchParams.page) || 1;
+  const { articles, totalPages } = await getArticles(currentPage);
+
   return (
     <main className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold text-red-600 mb-6">
@@ -23,6 +38,35 @@ export default function Home() {
       </div>
 
       <ArticleList articles={articles} />
+
+      <div className="mt-8">
+        <Pagination>
+          <PaginationContent>
+            {currentPage > 1 && (
+              <PaginationItem>
+                <PaginationPrevious href={`/?page=${currentPage - 1}`} />
+              </PaginationItem>
+            )}
+            
+            {[...Array(totalPages)].map((_, i) => (
+              <PaginationItem key={i + 1}>
+                <PaginationLink
+                  href={`/?page=${i + 1}`}
+                  isActive={currentPage === i + 1}
+                >
+                  {i + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+
+            {currentPage < totalPages && (
+              <PaginationItem>
+                <PaginationNext href={`/?page=${currentPage + 1}`} />
+              </PaginationItem>
+            )}
+          </PaginationContent>
+        </Pagination>
+      </div>
     </main>
   );
 }

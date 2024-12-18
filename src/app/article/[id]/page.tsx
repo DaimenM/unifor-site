@@ -1,4 +1,3 @@
-import { articles } from "@/data/articles";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -11,6 +10,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { getArticle } from "@/lib/articles";
 
 export default async function ArticlePage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -20,7 +20,7 @@ export default async function ArticlePage(props: { params: Promise<{ id: string 
     notFound();
   }
 
-  const article = articles.find((a) => a.id === id);
+  const article = await getArticle(id);
 
   if (!article) {
     notFound();
@@ -54,7 +54,7 @@ export default async function ArticlePage(props: { params: Promise<{ id: string 
         <p className="text-gray-800">{article.content}</p>
       </div>
       <div className="mt-8 grid gap-4 md:grid-cols-2">
-        {article.images.map((image, index) => (
+        {article.images.map((image: string, index: number) => (
           <Image
             key={index}
             src={image}
@@ -67,7 +67,7 @@ export default async function ArticlePage(props: { params: Promise<{ id: string 
       </div>
       {article.embeds && (
         <div className="mt-8">
-          {article.embeds.map((embed, index) => (
+          {article.embeds.map((embed: string, index: number) => (
             <div key={index} className="aspect-w-16 aspect-h-9 mt-4">
               <iframe
                 src={embed}
