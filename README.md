@@ -13,5 +13,5 @@ npm run dev
 - Fill in contact page
 - Create 404 article not found page
 - Additional error handling and cleanup
-
+- Test all features (delete, edit, mass upload of articles)
 
