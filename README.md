@@ -7,11 +7,12 @@ Run the development server with the command:
 npm run dev
 ```
 ## TO-DO
-- Login (admin panel/dashboard)
+- Login (admin panel/dashboard) [Kay]
 - Remove/Edit article capabilities for admin
-- Put remaining info articles in sidebar
-- Fill in contact page
+- Put remaining info articles in sidebar [Kay]
+- Fill in contact page [Kay]
 - Create 404 article not found page
 - Additional error handling and cleanup
-- Test all features (delete, edit, mass upload of articles)
+- Search bar
+- Test all features (delete, edit, mass upload of articles) [Both]
 
