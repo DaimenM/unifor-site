@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { MoreHorizontal } from "lucide-react"
 import { Article } from "@/types/article"
 import { ColumnDef } from "@tanstack/react-table"
+import { format } from "date-fns"
 
 export const columns: ColumnDef<Article>[] = [
   {
@@ -35,6 +36,21 @@ export const columns: ColumnDef<Article>[] = [
     cell: ({ row }) => {
       const content: string = row.getValue("content")
       return <div>{content.slice(0, 20)}...</div>
+    },
+  },
+  {
+    accessorKey: "date",
+    header: "Created At",
+    cell: ({ row }) => {
+      return format(new Date(row.original.date), "PPp")
+    },
+  },
+  {
+    id: "lastEdited",
+    header: "Last Edited",
+    cell: ({ row }) => {
+      const lastEdited = row.original.lastEdited || row.original.date
+      return format(new Date(lastEdited), "PPp")
     },
   },
   {
