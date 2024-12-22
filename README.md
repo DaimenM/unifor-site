@@ -7,7 +7,8 @@ Run the development server with the command:
 npm run dev
 ```
 ## TO-DO
-- Login (admin panel/dashboard) [Kay]
+- ~~Login (admin panel/dashboard)~~ [Kay]
+- Fix dashboard responsiveness
 - Remove/Edit article capabilities for admin
 - Put remaining info articles in sidebar [Kay]
 - Fill in contact page [Kay]

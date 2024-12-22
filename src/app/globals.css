@@ -86,6 +86,13 @@ body {
     @apply bg-background text-foreground;
   }
 
+  @media (max-width: 640px) {
+    /* Styles for screens smaller than 640px */
+    .table-cell {
+      font-size: 0.875rem; /* Example: Smaller font size */
+    }
+  }
+
   /* Webkit browsers (Chrome, Safari, etc.) */
   ::-webkit-scrollbar {
     width: 10px;

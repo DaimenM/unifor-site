@@ -278,7 +278,7 @@ export default function Dashboard() {
           <DialogHeader>
             <DialogTitle>Create New Article</DialogTitle>
             <DialogDescription>
-              Create a new article for your blog
+              Create a new public article for the site
             </DialogDescription>
           </DialogHeader>
 
@@ -358,86 +358,90 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Article Traffic</CardTitle>
-          <CardDescription>
-            Showing total visitors across all articles
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="w-full overflow-x-auto">
-          {isLoading ? (
-            <div>Loading analytics...</div>
-          ) : (
-            <ChartContainer config={chartConfig} className="w-full min-h-[200px] max-h-[250px]">
-              <AreaChart
-                accessibilityLayer
-                data={chartData}
-                margin={{
-                  left: 12,
-                  right: 12,
-                }}
-                width={1000}
-                height={250}
-              >
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="month"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                  tickFormatter={(value) => value.slice(0, 3)}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent indicator="dot" />}
-                />
-                <Area
-                  dataKey="mobile"
-                  type="natural"
-                  fill="var(--color-mobile)"
-                  fillOpacity={0.4}
-                  stroke="var(--color-mobile)"
-                  stackId="a"
-                />
-                <Area
-                  dataKey="desktop"
-                  type="natural"
-                  fill="var(--color-desktop)"
-                  fillOpacity={0.4}
-                  stroke="var(--color-desktop)"
-                  stackId="a"
-                />
-              </AreaChart>
-            </ChartContainer>
-          )}
-        </CardContent>
-        <CardFooter>
-          <div className="flex w-full items-start gap-2 text-sm">
-            <div className="grid gap-2">
-              <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                Traffic data for {new Date().getFullYear()}
+      <div className="w-full overflow-hidden">
+        <Card>
+          <CardHeader>
+            <CardTitle>Article Traffic</CardTitle>
+            <CardDescription>
+              Showing total visitors across all articles
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="w-full overflow-x-auto">
+            {isLoading ? (
+              <div>Loading analytics...</div>
+            ) : (
+              <ChartContainer config={chartConfig} className="w-full min-h-[200px] max-h-[250px]">
+                <AreaChart
+                  accessibilityLayer
+                  data={chartData}
+                  margin={{
+                    left: 12,
+                    right: 12,
+                  }}
+                  width={1000}
+                  height={250}
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="dot" />}
+                  />
+                  <Area
+                    dataKey="mobile"
+                    type="natural"
+                    fill="var(--color-mobile)"
+                    fillOpacity={0.4}
+                    stroke="var(--color-mobile)"
+                    stackId="a"
+                  />
+                  <Area
+                    dataKey="desktop"
+                    type="natural"
+                    fill="var(--color-desktop)"
+                    fillOpacity={0.4}
+                    stroke="var(--color-desktop)"
+                    stackId="a"
+                  />
+                </AreaChart>
+              </ChartContainer>
+            )}
+          </CardContent>
+          <CardFooter>
+            <div className="flex w-full items-start gap-2 text-sm">
+              <div className="grid gap-2">
+                <div className="flex items-center gap-2 leading-none text-muted-foreground">
+                  Traffic data for {new Date().getFullYear()}
+                </div>
               </div>
             </div>
-          </div>
-        </CardFooter>
-      </Card>
+          </CardFooter>
+        </Card>
+      </div>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Articles</CardTitle>
-          <CardDescription>
-            A list of all articles with their analytics and information
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div>Loading articles...</div>
-          ) : (
-            <DataTable columns={columns} data={articles} />
-          )}
-        </CardContent>
-      </Card>
+      <div className="w-full overflow-x-auto mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Articles</CardTitle>
+            <CardDescription>
+              A list of all articles with their analytics and information
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div>Loading articles...</div>
+            ) : (
+              <DataTable columns={columns} data={articles} />
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </main>
   );
 }

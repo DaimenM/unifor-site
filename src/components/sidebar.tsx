@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Home, FileText, Info } from 'lucide-react'
+import { Home, Info } from 'lucide-react'
 import Image from "next/image";
 import {
   Sidebar,
@@ -13,11 +13,6 @@ import {
 const sidebarItems = [
   { icon: Home, label: "Home", href: "/" },
   { icon: Info, label: "Contact", href: "/contact" },
-  { icon: FileText, label: "The Future of AI", href: "/article/1" },
-  { icon: FileText, label: "Sustainable Living", href: "/article/2" },
-  { icon: FileText, label: "Remote Work Trends", href: "/article/3" },
-  { icon: FileText, label: "Deep Sea Exploration", href: "/article/4" },
-  { icon: FileText, label: "Mindfulness Practices", href: "/article/5" },
 ]
 
 export function AppSidebar() {
