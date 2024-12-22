@@ -5,4 +5,8 @@ export type Article = {
     images: string[];
     embeds?: string[];
     date: string;
+    visitors: {
+      date: string;
+      platform: string;
+    }[];
   };  
