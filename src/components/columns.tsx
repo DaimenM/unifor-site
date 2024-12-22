@@ -1,7 +1,7 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { MoreHorizontal } from "lucide-react"
+import { MoreHorizontal, ArrowUpDown } from "lucide-react"
 import { Article } from "@/types/article"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
@@ -47,11 +47,26 @@ export const columns: ColumnDef<Article>[] = [
   },
   {
     id: "lastEdited",
-    header: "Last Edited",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Last Edited
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
     cell: ({ row }) => {
       const lastEdited = row.original.lastEdited || row.original.date
       return format(new Date(lastEdited), "PPp")
     },
+    sortingFn: (rowA, rowB) => {
+      const dateA = new Date(rowA.original.lastEdited || rowA.original.date).getTime()
+      const dateB = new Date(rowB.original.lastEdited || rowB.original.date).getTime()
+      return dateA - dateB
+    }
   },
   {
     accessorKey: "attachments",

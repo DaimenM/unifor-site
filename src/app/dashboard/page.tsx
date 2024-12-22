@@ -205,7 +205,7 @@ export default function Dashboard() {
         <CardHeader>
           <CardTitle>Articles</CardTitle>
           <CardDescription>
-            A list of all articles with their analytics
+            A list of all articles with their analytics and information
           </CardDescription>
         </CardHeader>
         <CardContent>
