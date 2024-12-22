@@ -1,24 +1,14 @@
+import { getAllArticles, createArticle } from '@/lib/articles';
+import { Article } from '@/types/article';
 import { NextResponse } from 'next/server';
-import { kv } from "@vercel/kv";
-import type { Article } from "@/types/article";
 
 export async function GET() {
   try {
-    // Get all article keys
-    const keys = await kv.keys("article:*");
-    
-    // Fetch all articles
-    const articles = await Promise.all(
-      keys.map(key => kv.get<Article>(key))
-    );
-
+    const articles = await getAllArticles();
     return NextResponse.json(articles);
   } catch (error) {
-    console.error("Failed to fetch articles:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch articles" },
-      { status: 500 }
-    );
+    console.error('Failed to fetch articles:', error);
+    return NextResponse.json({ error: 'Failed to fetch articles' }, { status: 500 });
   }
 }
 
@@ -36,8 +26,16 @@ export async function POST(request: Request) {
       article.visitors = [];
     }
 
+    if(!article.images) {
+      article.images = [];
+    }
+
+    if(!article.files) {
+      article.files = [];
+    }
+
     // Save to KV
-    await kv.set(`article:${article.id}`, article);
+    await createArticle(article);
     
     return NextResponse.json({ success: true });
   } catch (err: unknown) {

@@ -71,6 +71,7 @@ export default function CreateArticle() {
       content: values.content,
       images: values.images,
       date: new Date().toISOString(),
+      visitors: [],
     };
 
     try {

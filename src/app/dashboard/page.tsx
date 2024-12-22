@@ -18,7 +18,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import type { Article } from "@/types/article";
+import { Article } from "@/types/article";
+import { columns } from "@/components/columns"
+import { DataTable } from "@/components/data-table"
 
 const chartConfig = {
   desktop: {
@@ -42,13 +44,15 @@ export default function Dashboard() {
   const router = useRouter();
   const [chartData, setChartData] = useState<MonthlyStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [articles, setArticles] = useState<Article[]>([]);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        // Fetch all articles from KV
+        // Use the API route instead of direct function call
         const response = await fetch('/api/articles');
-        const articles: Article[] = await response.json();
+        if (!response.ok) throw new Error('Failed to fetch articles');
+        const articles = await response.json();
 
         // Initialize monthly stats
         const monthlyStats: { [key: string]: MonthlyStats } = {};
@@ -68,7 +72,7 @@ export default function Dashboard() {
         });
 
         // Process visitors data from all articles
-        articles.forEach(article => {
+        articles.forEach((article: Article) => {
           article.visitors?.forEach(visit => {
             const date = new Date(visit.date);
             const month = months[date.getMonth()];
@@ -85,6 +89,7 @@ export default function Dashboard() {
           .map(month => monthlyStats[month]);
 
         setChartData(sortedData);
+        setArticles(articles);
       } catch (error) {
         console.error('Failed to fetch analytics:', error);
       } finally {
@@ -194,6 +199,22 @@ export default function Dashboard() {
             </div>
           </div>
         </CardFooter>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Articles</CardTitle>
+          <CardDescription>
+            A list of all articles with their analytics
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div>Loading articles...</div>
+          ) : (
+            <DataTable columns={columns} data={articles} />
+          )}
+        </CardContent>
       </Card>
     </main>
   );

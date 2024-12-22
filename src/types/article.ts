@@ -9,4 +9,8 @@ export type Article = {
       date: string;
       platform: string;
     }[];
+    files?: {
+      name: string;
+      url: string;
+    }[];
   };  
