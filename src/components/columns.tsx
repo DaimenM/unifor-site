@@ -5,6 +5,7 @@ import { MoreHorizontal, ArrowUpDown } from "lucide-react"
 import { Article } from "@/types/article"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
+import Link from "next/link"
 
 export const columns: ColumnDef<Article>[] = [
   {
@@ -29,6 +30,16 @@ export const columns: ColumnDef<Article>[] = [
   {
     accessorKey: "title",
     header: "Title",
+    cell: ({ row }) => {
+      return (
+        <Link 
+          href={`/article/${row.original.id}`}
+          className="hover:underline text-foreground"
+        >
+          {row.original.title}
+        </Link>
+      )
+    }
   },
   {
     accessorKey: "content",
