@@ -3,6 +3,7 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { AppSidebar } from "@/components/sidebar"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { Toaster } from "@/components/ui/toaster"
 
 export const metadata = {
   title: "District 300 Blog",
@@ -27,6 +28,7 @@ export default function RootLayout({
             <Footer />
           </SidebarInset>
         </SidebarProvider>
+        <Toaster />
       </body>
     </html>
   )

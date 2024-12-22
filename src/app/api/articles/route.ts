@@ -1,6 +1,7 @@
 import { getAllArticles, createArticle } from '@/lib/articles';
 import { Article } from '@/types/article';
 import { NextResponse } from 'next/server';
+import { headers } from 'next/headers';
 
 export async function GET() {
   try {
@@ -14,6 +15,24 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const headersList = await headers();
+    const authHeader = headersList.get('authorization');
+    
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.split(' ')[1];
+    
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      if (payload.exp * 1000 <= Date.now()) {
+        return NextResponse.json({ error: 'Token expired' }, { status: 401 });
+      }
+    } catch {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
     const article: Article = await request.json();
     
     // Ensure article has an id
@@ -38,7 +57,7 @@ export async function POST(request: Request) {
     await createArticle(article);
     
     return NextResponse.json({ success: true });
-  } catch (err: unknown) {
+  } catch (err) {
     console.error('Failed to create article:', err);
     return NextResponse.json({ error: 'Failed to create article' }, { status: 500 });
   }
