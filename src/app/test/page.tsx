@@ -16,7 +16,7 @@ export default function TestPage() {
 
   return (
     <div className="container mx-auto p-8">
-      <Button onClick={handleClick}>
+      <Button onClick={handleClick} className="mb-8">
         Show Toast
       </Button>
     </div>

@@ -45,6 +45,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { LoadingSpinner } from "@/components/ui/loading";
 
 const chartConfig = {
   desktop: {
@@ -79,6 +81,8 @@ export default function Dashboard() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -152,6 +156,7 @@ export default function Dashboard() {
         router.push("/login");
         return;
       }
+      setIsAuthChecking(false);
       fetchAnalytics();
     } catch (error) {
       console.error("Token verification error:", error);
@@ -159,6 +164,10 @@ export default function Dashboard() {
       router.push("/login");
     }
   }, [router]);
+
+  if (isAuthChecking) {
+    return <LoadingSpinner />;
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("auth-token");
@@ -366,52 +375,56 @@ export default function Dashboard() {
               Showing total visitors across all articles
             </CardDescription>
           </CardHeader>
-          <CardContent className="w-full overflow-x-auto">
-            {isLoading ? (
-              <div>Loading analytics...</div>
-            ) : (
-              <ChartContainer config={chartConfig} className="w-full min-h-[200px] max-h-[250px]">
-                <AreaChart
-                  accessibilityLayer
-                  data={chartData}
-                  margin={{
-                    left: 12,
-                    right: 12,
-                  }}
-                  width={1000}
-                  height={250}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dot" />}
-                  />
-                  <Area
-                    dataKey="mobile"
-                    type="natural"
-                    fill="var(--color-mobile)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-mobile)"
-                    stackId="a"
-                  />
-                  <Area
-                    dataKey="desktop"
-                    type="natural"
-                    fill="var(--color-desktop)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-desktop)"
-                    stackId="a"
-                  />
-                </AreaChart>
-              </ChartContainer>
-            )}
+          <CardContent className="relative w-full overflow-x-auto">
+            <div className="min-w-[400px]">
+              {isLoading ? (
+                <div>Loading analytics...</div>
+              ) : (
+                <ChartContainer config={chartConfig} className="w-full min-h-[200px] max-h-[250px]">
+                  <AreaChart
+                    accessibilityLayer
+                    data={chartData}
+                    margin={{
+                      left: isMobile ? 8 : 12,
+                      right: isMobile ? 8 : 12,
+                      top: 10,
+                      bottom: 10,
+                    }}
+                  >
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      tickFormatter={(value) => value.slice(0, 3)}
+                      interval={isMobile ? "preserveStartEnd" : 0}
+                      tick={{ fontSize: isMobile ? 10 : 12 }}
+                    />
+                    <ChartTooltip
+                      cursor={false}
+                      content={<ChartTooltipContent indicator="dot" />}
+                    />
+                    <Area
+                      dataKey="mobile"
+                      type="natural"
+                      fill="var(--color-mobile)"
+                      fillOpacity={0.4}
+                      stroke="var(--color-mobile)"
+                      stackId="a"
+                    />
+                    <Area
+                      dataKey="desktop"
+                      type="natural"
+                      fill="var(--color-desktop)"
+                      fillOpacity={0.4}
+                      stroke="var(--color-desktop)"
+                      stackId="a"
+                    />
+                  </AreaChart>
+                </ChartContainer>
+              )}
+            </div>
           </CardContent>
           <CardFooter>
             <div className="flex w-full items-start gap-2 text-sm">

@@ -1,6 +1,6 @@
 {
   "name": "unifor-site",
-  "version": "0.6.0",
+  "version": "0.6.5",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

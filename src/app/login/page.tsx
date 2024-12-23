@@ -8,6 +8,7 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/ui/loading";
 
 const formSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -17,6 +18,14 @@ const formSchema = z.object({
 export default function Login() {
   const router = useRouter();
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("auth-token");
@@ -25,23 +34,20 @@ export default function Login() {
         const payload = JSON.parse(atob(token.split(".")[1]));
         if (payload.exp * 1000 > Date.now()) {
           router.push("/dashboard");
-        } else {
-          localStorage.removeItem("auth-token");
+          return;
         }
+        localStorage.removeItem("auth-token");
       } catch (_error) {
         console.error("Token verification error:", _error);
         localStorage.removeItem("auth-token");
       }
     }
+    setIsLoading(false);
   }, [router]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {

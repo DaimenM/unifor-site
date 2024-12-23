@@ -50,7 +50,7 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter articles..."
@@ -61,8 +61,8 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
       </div>
-      <div className="rounded-md border overflow-x-auto">
-        <Table className="min-w-full">
+      <div className="rounded-md border grid grid-cols-1">
+        <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
