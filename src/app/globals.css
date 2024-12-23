@@ -2,12 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
+    /* Font family */
+    --font-primary: Arial, Helvetica, sans-serif;
+    
+    /* Font sizes */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+    --font-size-4xl: 2.25rem;
+    
+    /* Font weights */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Line heights */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+
+    /* Colors and other variables */
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
@@ -79,65 +100,105 @@ body {
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  /* Base typography styles */
   body {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
     @apply bg-background text-foreground;
   }
 
-  @media (max-width: 640px) {
-    /* Styles for screens smaller than 640px */
-    .table-cell {
-      font-size: 0.875rem; /* Example: Smaller font size */
-    }
+  h1, h2, h3, h4, h5, h6, p, small {
+    font-family: var(--font-primary);
   }
 
-  /* Webkit browsers (Chrome, Safari, etc.) */
-  ::-webkit-scrollbar {
-    width: 10px;
+  h1 {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
   }
 
-  ::-webkit-scrollbar-track {
-    background: hsl(var(--secondary));
-    border-radius: 5px;
+  h2 {
+    font-size: var(--font-size-3xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
   }
 
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground));
-    border-radius: 5px;
+  h3 {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--accent-foreground));
+  h4 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
   }
 
-  /* Firefox */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground)) hsl(var(--secondary));
+  h5 {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
   }
 
-  @layer base {
-    :root {
-      --chart-1: 12 76% 61%;
-      --chart-2: 173 58% 39%;
-      --chart-3: 197 37% 24%;
-      --chart-4: 43 74% 66%;
-      --chart-5: 27 87% 67%;
-    }
-
-    .dark {
-      --chart-1: 220 70% 50%;
-      --chart-2: 160 60% 45%;
-      --chart-3: 30 80% 55%;
-      --chart-4: 280 65% 60%;
-      --chart-5: 340 75% 55%;
-    }
+  h6 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
   }
 
-  .recharts-responsive-container {
-    height: initial !important;
+  p {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+  }
+
+  small {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+  }
+}
+
+/* Sidebar specific styles */
+@layer components {
+  /* Ensure sidebar components use the primary font */
+  [data-sidebar] {
+    font-family: var(--font-primary) !important;
+  }
+
+  /* Style sidebar group labels (collapsible headers) */
+  [data-sidebar="group-label"] {
+    font-size: var(--font-size-sm) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    color: hsl(var(--sidebar-foreground)) !important;
+  }
+
+  /* Style sidebar menu items */
+  [data-sidebar="menu-button"] {
+    font-size: var(--font-size-sm) !important;
+    font-weight: var(--font-weight-normal) !important;
+  }
+
+  /* Style the collapsible content */
+  [data-sidebar="group-content"] {
+    font-family: var(--font-primary) !important;
+    font-size: var(--font-size-sm) !important;
+  }
+
+  /* Style the sidebar header text */
+  [data-sidebar="header"] span {
+    font-family: var(--font-primary) !important;
+  }
+
+  /* Ensure consistent spacing in collapsible groups */
+  .group\/collapsible {
+    margin: 0;
+    padding: 0.25rem 0;
+  }
+
+  /* Style the chevron icon in collapsible headers */
+  .group\/collapsible [data-state='open'] .chevron-icon {
+    @apply rotate-180;
   }
 }
 
@@ -209,4 +270,8 @@ body {
 @keyframes ios-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+.recharts-responsive-container {
+  height: initial !important;
 }
