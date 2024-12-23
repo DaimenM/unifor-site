@@ -4,6 +4,7 @@ import Footer from "@/components/footer"
 import { AppSidebar } from "@/components/sidebar"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/toaster"
+import { LoadingTransition } from "@/components/loading-transition"
 
 export const metadata = {
   title: "District 300 Blog",
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
+        <LoadingTransition />
         <SidebarProvider defaultOpen={true}>
           <AppSidebar />
           <SidebarInset>

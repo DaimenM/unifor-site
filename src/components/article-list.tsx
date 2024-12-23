@@ -10,8 +10,13 @@ type ArticleListProps = {
 export default function ArticleList({ articles }: ArticleListProps) {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {articles.map((article) => (
-        <Link href={`/article/${article.id}`} key={article.id}>
+      {articles.map((article, index) => (
+        <Link 
+          href={`/article/${article.id}`} 
+          key={article.id}
+          className="animate-fade-up opacity-0"
+          style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
+        >
           <Card className="h-full hover:shadow-lg transition-shadow duration-200">
             {article.images && article.images.length > 0 && (
               <div className="relative w-full h-48 overflow-hidden">

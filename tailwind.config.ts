@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
 export default {
     darkMode: ["class"],
@@ -9,6 +10,28 @@ export default {
   ],
   theme: {
   	extend: {
+  		keyframes: {
+  			"fade-up": {
+  				"0%": {
+  					opacity: "0",
+  					transform: "translateY(10px)",
+  				},
+  				"100%": {
+  					opacity: "1",
+  					transform: "translateY(0)",
+  				},
+  			},
+  			loading: {
+  				"0%": { width: "0%" },
+  				"50%": { width: "70%" },
+  				"100%": { width: "100%" }
+  			}
+  		},
+  		animation: {
+  			"fade-up": "fade-up 0.5s ease-out",
+  			"accordion-down": "accordion-down 0.2s ease-out",
+  			"accordion-up": "accordion-up 0.2s ease-out",
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -68,5 +91,5 @@ export default {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 } satisfies Config;

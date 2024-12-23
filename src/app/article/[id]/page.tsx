@@ -60,7 +60,7 @@ export default async function ArticlePage(props: Props) {
   return (
     <AnalyticsWrapper articleId={id}>
       <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-6 animate-fade-up [animation-fill-mode:forwards]">
           <SidebarTrigger
             className="md:hidden text-red-600 flex-shrink-0"
             size={"icon"}
@@ -80,12 +80,12 @@ export default async function ArticlePage(props: Props) {
           </Breadcrumb>
         </div>
 
-        <h1 className="text-4xl font-bold text-red-600 mb-4">{article.title}</h1>
-        <p className="text-gray-400 mb-8">{new Date(article.date).toLocaleDateString()}</p>
-        <div className="prose max-w-none">
+        <h1 className="text-4xl font-bold text-red-600 mb-4 opacity-0 animate-fade-up [animation-delay:100ms] [animation-fill-mode:forwards]">{article.title}</h1>
+        <p className="text-gray-400 mb-8 opacity-0 animate-fade-up [animation-delay:200ms] [animation-fill-mode:forwards]">{new Date(article.date).toLocaleDateString()}</p>
+        <div className="prose max-w-none opacity-0 animate-fade-up [animation-delay:300ms] [animation-fill-mode:forwards]">
           <p className="text-gray-800">{article.content}</p>
         </div>
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <div className="mt-8 grid gap-4 md:grid-cols-2 opacity-0 animate-fade-up [animation-delay:400ms] [animation-fill-mode:forwards]">
           {article.images.map((image: string, index: number) => (
             <Image
               key={index}
@@ -98,7 +98,7 @@ export default async function ArticlePage(props: Props) {
           ))}
         </div>
         {article.embeds && (
-          <div className="mt-8">
+          <div className="mt-8 opacity-0 animate-fade-up [animation-delay:500ms] [animation-fill-mode:forwards]">
             {article.embeds.map((embed: string, index: number) => (
               <div key={index} className="aspect-w-16 aspect-h-9 mt-4">
                 <iframe
