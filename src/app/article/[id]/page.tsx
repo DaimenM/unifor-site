@@ -9,20 +9,52 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { kv } from "@vercel/kv";
-import type { Article } from "@/types/article";
+import { getArticle } from "@/lib/articles";
 import { AnalyticsWrapper } from "@/components/analytics-wrapper";
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
 
-export default async function ArticlePage(props: { params: Promise<{ id: string }> }) {
+type Props = {
+  params: Promise<{ id: string }>
+}
+
+export async function generateMetadata(
+  { params }: Props,
+): Promise<Metadata> {
+  // read route params
+  const id = (await params).id
+ 
+  // fetch data
+  const article = await getArticle(id);
+
+  if (!article) {
+    return {
+      title: "Article not found",
+    };
+  }
+  const pageMetadata: Metadata = {
+    title: article.title,
+    description: article.content.substring(0, 20),
+  }
+
+  if(article.images.length > 0) {
+    pageMetadata.openGraph = {
+      images: article.images,
+    }
+  }
+ 
+  return pageMetadata;
+}
+
+export default async function ArticlePage(props: Props) {
   const params = await props.params;
   const id = params.id;
   
   // Fetch article server-side
-  const article = await kv.get<Article>(`article:${id}`);
+  const article = await getArticle(id);
   
   if (!article) {
-    // You might want to use notFound() from next/navigation here
-    return <div>Article not found</div>;
+    return notFound();
   }
 
   return (
