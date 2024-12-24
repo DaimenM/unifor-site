@@ -14,4 +14,5 @@ export type Article = {
       name: string;
       url: string;
     }[];
+    genInfo?: boolean;
   };  

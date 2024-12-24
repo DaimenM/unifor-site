@@ -49,6 +49,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LoadingSpinner } from "@/components/ui/loading";
 import { deleteImage } from "@/lib/images";
+import Image from "next/image";
 const chartConfig = {
   desktop: {
     label: "Desktop",
@@ -88,6 +89,7 @@ export default function Dashboard() {
   const [articleToDelete, setArticleToDelete] = useState<Article | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [articleToEdit, setArticleToEdit] = useState<Article | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [editUploading, setEditUploading] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -184,7 +186,7 @@ export default function Dashboard() {
     router.push("/login");
   };
 
-  async function handleImageUpload(files: FileList | null, form: UseFormReturn<any>) {
+  async function handleImageUpload(files: FileList | null, form: UseFormReturn<z.infer<typeof formSchema>>) {
     if (!files || files.length === 0) return [];
     
     setUploading(true);
@@ -644,10 +646,12 @@ export default function Dashboard() {
             <tr key={index} className="border-t">
               <td className="p-2">
                 <div className="h-16 w-16 relative">
-                  <img
+                  <Image
                     src={imageUrl}
                     alt={fileName}
                     className="h-full w-full object-cover rounded-sm"
+                    width={64}
+                    height={64}
                   />
                 </div>
               </td>
