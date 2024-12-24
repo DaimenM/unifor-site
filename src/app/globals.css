@@ -275,3 +275,19 @@
 .recharts-responsive-container {
   height: initial !important;
 }
+
+/* Modern scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Firefox scrollbar styles */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(156 163 175) transparent;
+}

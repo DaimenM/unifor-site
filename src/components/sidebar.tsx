@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Home, Info, HelpCircle, MessageCircleQuestion, FileText, ChevronDown } from 'lucide-react'
+import { Home, Info, HelpCircle, MessageCircle, FileText, ChevronDown } from 'lucide-react'
 import Image from "next/image";
 import {
   Sidebar,
@@ -20,10 +20,10 @@ import {
 
 const sidebarGeneralInfoItems = [
   { icon: Home, label: "Home", href: "/" },
-  { icon: Info, label: "Contact", href: "/contact" },
-  { icon: HelpCircle, label: "FAQ", href: "/faq" },
-  { icon: MessageCircleQuestion, label: "Messages From District Chair", href: "/" },
-  { icon: FileText, label: "Address Change Form", href: "/" },
+  { icon: Info, label: "Contact", href: "/article/contact" },
+  { icon: HelpCircle, label: "FAQ", href: "/article/faq" },
+  { icon: MessageCircle, label: "Messages From District Chair", href: "/article/messages-from-district-chair" },
+  { icon: FileText, label: "Address Change Form", href: "https://www.unifor2002.org/Contact-Us/Moving-Update-Us-Change-of-Address-Form?lang=fr-ca" },
 ]
 
 const sidebarUnionResourcesItems = [

@@ -2,6 +2,7 @@ import { Article } from "@/types/article";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
+import { stripMarkdown } from "@/lib/utils";
 
 type ArticleListProps = {
   articles: Article[];
@@ -32,7 +33,9 @@ export default function ArticleList({ articles }: ArticleListProps) {
               <CardTitle className="text-red-600">{article.title}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600 mb-4">{article.content.slice(0, 100)}...</p>
+              <p className="text-gray-600 mb-4">
+                {stripMarkdown(article.content).slice(0, 100)}...
+              </p>
               <p className="text-sm text-gray-400">{new Date(article.date).toLocaleDateString()}</p>
             </CardContent>
           </Card>

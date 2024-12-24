@@ -11,8 +11,10 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { getArticle } from "@/lib/articles";
 import { AnalyticsWrapper } from "@/components/analytics-wrapper";
+import { ScrollToTop } from "@/components/scroll-to-top";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import ReactMarkdown from 'react-markdown';
 
 type Props = {
   params: Promise<{ id: string }>
@@ -85,7 +87,7 @@ export default async function ArticlePage(props: Props) {
           <p className="text-gray-400 mb-8 opacity-0 animate-fade-up [animation-delay:200ms] [animation-fill-mode:forwards]">{new Date(article.date).toLocaleDateString()}</p>
         )}
         <div className="prose max-w-none opacity-0 animate-fade-up [animation-delay:300ms] [animation-fill-mode:forwards]">
-          <p className="text-gray-800">{article.content}</p>
+          <ReactMarkdown>{article.content}</ReactMarkdown>
         </div>
         <div className="mt-8 grid gap-4 md:grid-cols-2 opacity-0 animate-fade-up [animation-delay:400ms] [animation-fill-mode:forwards]">
           {article.images.map((image: string, index: number) => (
@@ -113,6 +115,7 @@ export default async function ArticlePage(props: Props) {
             ))}
           </div>
         )}
+        <ScrollToTop />
       </main>
     </AnalyticsWrapper>
   );
