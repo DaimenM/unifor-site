@@ -585,42 +585,64 @@ export default function Dashboard() {
                       
                       {/* Add this new section for image previews */}
                       {field.value && field.value.length > 0 && (
-                        <div className="mt-4 grid grid-cols-2 gap-4">
-                          {field.value.map((imageUrl, index) => (
-                            <div key={index} className="relative group">
-                              <img
-                                src={imageUrl}
-                                alt={`Image ${index + 1}`}
-                                className="w-full h-40 object-cover rounded-md"
-                              />
-                              <Button
-                                type="button"
-                                variant="destructive"
-                                size="icon"
-                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                                onClick={() => {
-                                  const newImages = field.value.filter((_, i) => i !== index);
-                                  editForm.setValue('images', newImages);
-                                }}
-                              >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="2"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                >
-                                  <path d="M18 6L6 18M6 6l12 12" />
-                                </svg>
-                              </Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+  <div className="mt-4 border rounded-md">
+    <table className="w-full">
+      <thead className="bg-muted">
+        <tr>
+          <th className="p-2 text-left">Preview</th>
+          <th className="p-2 text-left">File Name</th>
+          <th className="p-2 text-left">Uploaded</th>
+          <th className="p-2 text-left">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {field.value.map((imageUrl, index) => {
+          // Extract filename from URL
+          const fileName = imageUrl.split('/').pop() || `Image ${index + 1}`;
+          // Use current date as upload date (you might want to store actual upload dates)
+          const uploadDate = new Date().toLocaleDateString();
+          
+          return (
+            <tr key={index} className="border-t">
+              <td className="p-2">
+                <div className="h-16 w-16 relative">
+                  <img
+                    src={imageUrl}
+                    alt={fileName}
+                    className="h-full w-full object-cover rounded-sm"
+                  />
+                </div>
+              </td>
+              <td className="p-2">
+                <p className="text-sm truncate max-w-[200px]" title={fileName}>
+                  {fileName}
+                </p>
+              </td>
+              <td className="p-2">
+                <p className="text-sm text-muted-foreground">
+                  {uploadDate}
+                </p>
+              </td>
+              <td className="p-2">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => {
+                    const newImages = field.value.filter((_, i) => i !== index);
+                    editForm.setValue('images', newImages);
+                  }}
+                >
+                  Delete
+                </Button>
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </table>
+  </div>
+)}
                     </FormItem>
                   )}
                 />
