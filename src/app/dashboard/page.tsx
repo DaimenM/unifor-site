@@ -44,12 +44,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LoadingSpinner } from "@/components/ui/loading";
 import { deleteImage } from "@/lib/images";
 import Image from "next/image";
+import { MarkdownEditor } from "@/components/markdown-editor";
 const chartConfig = {
   desktop: {
     label: "Desktop",
@@ -538,10 +538,9 @@ export default function Dashboard() {
                     <FormItem>
                       <FormLabel>Content</FormLabel>
                       <FormControl>
-                        <Textarea
-                          placeholder="Write your article content here..."
-                          className="min-h-[200px]"
-                          {...field}
+                        <MarkdownEditor
+                          content={field.value}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -554,11 +553,11 @@ export default function Dashboard() {
                   name="images"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Images</FormLabel>
+                      <FormLabel>Files</FormLabel>
                       <FormControl>
                         <Input
                           type="file"
-                          accept="image/*"
+                          accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                           multiple
                           onChange={(e) =>
                             handleImageUpload(e.target.files, form)
@@ -632,9 +631,9 @@ export default function Dashboard() {
                     <FormItem>
                       <FormLabel>Content</FormLabel>
                       <FormControl>
-                        <Textarea
-                          placeholder="Enter article content"
-                          {...field}
+                        <MarkdownEditor
+                          content={field.value}
+                          onChange={field.onChange}
                         />
                       </FormControl>
                       <FormMessage />
@@ -647,11 +646,11 @@ export default function Dashboard() {
                   name="images"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Images</FormLabel>
+                      <FormLabel>Files</FormLabel>
                       <FormControl>
                         <Input
                           type="file"
-                          accept="image/*"
+                          accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                           multiple
                           onChange={(e) =>
                             handleImageUpload(e.target.files, editForm)

@@ -10,9 +10,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async () => {
-        // Only allow image uploads
+        // Only allow image and pdf uploads
         return {
-          allowedContentTypes: ['image/jpeg', 'image/png', 'image/gif'],
+          allowedContentTypes: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'],
           tokenPayload: JSON.stringify({}),
         };
       },
