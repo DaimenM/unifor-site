@@ -5,7 +5,6 @@ import { headers } from 'next/headers';
 import { kv } from "@vercel/kv";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { del } from '@vercel/blob';
-import {deleteImage} from '@/lib/images';
 import {getArticle} from '@/lib/articles';
 
 const ARTICLE_IDS_KEY = 'article-ids';
