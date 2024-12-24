@@ -5,6 +5,8 @@ import { AppSidebar } from "@/components/sidebar"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/toaster"
 import { LoadingTransition } from "@/components/loading-transition"
+import { Suspense } from "react"
+import { LoadingSpinner } from "@/components/ui/loading"
 
 export const metadata = {
   title: "District 300 Blog",
@@ -23,11 +25,13 @@ export default function RootLayout({
         <SidebarProvider defaultOpen={true}>
           <AppSidebar />
           <SidebarInset>
-            <Header />
-            <main className="flex-grow">
-              {children}
-            </main>
-            <Footer />
+            <Suspense fallback={<LoadingSpinner />}>
+              <Header />
+              <main className="flex-grow">
+                {children}
+              </main>
+              <Footer />
+            </Suspense>
           </SidebarInset>
         </SidebarProvider>
         <Toaster />

@@ -12,7 +12,7 @@ npm run dev
 - Remove/Edit article capabilities for admin
 - Put remaining info articles in sidebar [Kay - Ongoing]
 - Fill in contact page [Kay]
-- Create 404 article not found page
+- ~~Create 404 article not found page~~
 - Additional error handling and cleanup
 - Search bar
 - Test all features (delete, edit, mass upload of articles) [Both]

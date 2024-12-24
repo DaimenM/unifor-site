@@ -48,7 +48,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LoadingSpinner } from "@/components/ui/loading";
-import {DELETE} from "../api//articles/route"
 
 const chartConfig = {
   desktop: {
@@ -328,7 +327,7 @@ export default function Dashboard() {
     <DialogHeader>
       <DialogTitle>Delete Article</DialogTitle>
       <DialogDescription>
-        Are you sure you want to delete "{articleToDelete?.title}"? 
+        Are you sure you want to delete &quot;{articleToDelete?.title}&quot;? 
         This action cannot be undone.
       </DialogDescription>
     </DialogHeader>
