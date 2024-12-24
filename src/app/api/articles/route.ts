@@ -4,6 +4,11 @@ import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { kv } from "@vercel/kv";
 
+const ARTICLE_IDS_KEY = 'article-ids';
+import { del } from '@vercel/blob';
+import {deleteImage} from '@/lib/images';
+import {getArticle} from '@/lib/articles';
+
 export async function GET() {
   try {
     const articles = await getAllArticles();
@@ -65,7 +70,6 @@ export async function POST(request: Request) {
 } 
 export async function DELETE(request: Request) {
   try {
-    // Verify auth token
     const authHeader = request.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json(
@@ -75,7 +79,32 @@ export async function DELETE(request: Request) {
     }
 
     const { id } = await request.json();
-    await kv.del(id); // This will now delete the correctly prefixed key
+    
+    // Get article data first
+    const articleId = id.replace('article:', '');
+    const article = await getArticle(articleId);
+
+    if (!article) {
+      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
+    }
+
+    // Delete all associated images first
+    if (article.images && article.images.length > 0) {
+      await Promise.all(
+        article.images.map(async (imageUrl: string) => {
+          try {
+            await deleteImage(imageUrl);
+          } catch (error) {
+            console.error(`Failed to delete image ${imageUrl}:`, error);
+          }
+        })
+      );
+    }
+
+    // Delete the article
+    await kv.del(`article:${articleId}`);
+    await kv.srem(ARTICLE_IDS_KEY, articleId);
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Delete article error:", error);

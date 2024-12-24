@@ -48,7 +48,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LoadingSpinner } from "@/components/ui/loading";
-
+import { deleteImage } from "@/lib/images";
 const chartConfig = {
   desktop: {
     label: "Desktop",
@@ -350,18 +350,36 @@ export default function Dashboard() {
 
   async function onEditSubmit(values: z.infer<typeof formSchema>) {
     const token = localStorage.getItem("auth-token");
-    if (!token || !articleToEdit) return;
-  
+    if (!token) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to edit articles"
+      });
+      return;
+    }
+
     try {
-      // Prepare updated article data
+      // Get the current article to compare images
+      const currentArticle = articleToEdit;
+      if(currentArticle) {const removedImages = currentArticle.images.filter(
+        (img: string) => !values.images.includes(img)
+      );
+  
+      // Delete removed images
+      await Promise.all(
+        removedImages.map((imageUrl: string) => deleteImage(imageUrl))
+      );
+    }
+      // Create updated article object
       const updatedArticle = {
         ...articleToEdit,
         title: values.title,
         content: values.content,
-        images: values.images || [], // This will now include both existing and newly uploaded images
-        lastEdited: new Date().toISOString(),
+        images: values.images,
       };
-  
+
+      // Then update the article
       const response = await fetch('/api/articles', {
         method: 'PUT',
         headers: {
