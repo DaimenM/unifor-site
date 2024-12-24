@@ -35,7 +35,6 @@ export async function POST(request: Request): Promise<NextResponse> {
 export async function DELETE(request: Request) {
   try {
     const { url } = await request.json();
-
     // Extract pathname from the blob URL
     const blobUrlPattern = /https:\/\/[^/]+\/(.*)/;
     const match = url.match(blobUrlPattern);
