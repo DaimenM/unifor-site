@@ -93,19 +93,6 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Delete all associated images first
-    if (article.images && article.images.length > 0) {
-      await Promise.all(
-        article.images.map(async (imageUrl) => {
-          try {
-            await deleteImage(imageUrl);
-          } catch (error) {
-            console.error(`Failed to delete image ${imageUrl}:`, error);
-          }
-        })
-      );
-    }
-
     // Now delete the article itself
     await kv.del(`article:${articleId}`);
     await kv.srem(ARTICLE_IDS_KEY, articleId);
