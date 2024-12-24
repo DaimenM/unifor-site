@@ -30,7 +30,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { v4 as uuidv4 } from 'uuid';
@@ -87,6 +87,9 @@ export default function Dashboard() {
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [articleToDelete, setArticleToDelete] = useState<Article | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [articleToEdit, setArticleToEdit] = useState<Article | null>(null);
+  const [editUploading, setEditUploading] = useState(false);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -95,6 +98,10 @@ export default function Dashboard() {
       content: '',
       images: [],
     },
+  });
+
+  const editForm = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
   });
 
   const fetchAnalytics = async () => {
@@ -178,7 +185,7 @@ export default function Dashboard() {
     router.push("/login");
   };
 
-  async function handleImageUpload(files: FileList | null) {
+  async function handleImageUpload(files: FileList | null, form: UseFormReturn<any>) {
     if (!files || files.length === 0) return [];
     
     setUploading(true);
@@ -192,10 +199,23 @@ export default function Dashboard() {
       });
 
       const uploadedUrls = await Promise.all(uploadPromises);
-      form.setValue('images', uploadedUrls);
-      return uploadedUrls;
+      
+      // Get existing images if any
+      const existingImages = form.getValues('images') || [];
+      
+      // Combine existing and new images
+      const newImages = [...existingImages, ...uploadedUrls];
+      
+      // Update form
+      form.setValue('images', newImages);
+      return newImages;
     } catch (error) {
       console.error('Error uploading images:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to upload images"
+      });
       return [];
     } finally {
       setUploading(false);
@@ -318,8 +338,67 @@ export default function Dashboard() {
     setArticleToDelete(article);
     setShowDeleteDialog(true);
   };
-  
 
+  const handleEditClick = (article: Article) => {
+    setArticleToEdit(article);
+    editForm.reset({
+      title: article.title,
+      content: article.content,
+      images: article.images,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  async function onEditSubmit(values: z.infer<typeof formSchema>) {
+    const token = localStorage.getItem("auth-token");
+    if (!token || !articleToEdit) return;
+  
+    try {
+      // Prepare updated article data
+      const updatedArticle = {
+        ...articleToEdit,
+        title: values.title,
+        content: values.content,
+        images: values.images || [], // This will now include both existing and newly uploaded images
+        lastEdited: new Date().toISOString(),
+      };
+  
+      const response = await fetch('/api/articles', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedArticle),
+      });
+  
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update article');
+      }
+  
+      // Reset form and close dialog
+      editForm.reset();
+      setIsEditDialogOpen(false);
+      setArticleToEdit(null);
+      
+      // Show success message
+      toast({
+        title: "Success",
+        description: "Article updated successfully",
+      });
+  
+      // Refresh the articles list
+      fetchAnalytics();
+    } catch (error) {
+      console.error('Error updating article:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update article"
+      });
+    }
+  }
 
   return (
     <>
@@ -418,7 +497,7 @@ export default function Dashboard() {
                           type="file"
                           accept="image/*"
                           multiple
-                          onChange={(e) => handleImageUpload(e.target.files)}
+                          onChange={(e) => handleImageUpload(e.target.files, form)}
                           disabled={uploading}
                         />
                       </FormControl>
@@ -444,6 +523,114 @@ export default function Dashboard() {
                     {uploading ? 'Uploading...' : 'Create Article'}
                   </Button>
                 </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Article</DialogTitle>
+              <DialogDescription>
+                Make changes to your article
+              </DialogDescription>
+            </DialogHeader>
+
+            <Form {...editForm}>
+              <form onSubmit={editForm.handleSubmit(onEditSubmit)} className="space-y-8">
+                <FormField
+                  control={editForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter article title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Content</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Enter article content" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
+                  name="images"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Images</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(e) => handleImageUpload(e.target.files, editForm)}
+                          disabled={uploading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      
+                      {/* Add this new section for image previews */}
+                      {field.value && field.value.length > 0 && (
+                        <div className="mt-4 grid grid-cols-2 gap-4">
+                          {field.value.map((imageUrl, index) => (
+                            <div key={index} className="relative group">
+                              <img
+                                src={imageUrl}
+                                alt={`Image ${index + 1}`}
+                                className="w-full h-40 object-cover rounded-md"
+                              />
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="icon"
+                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => {
+                                  const newImages = field.value.filter((_, i) => i !== index);
+                                  editForm.setValue('images', newImages);
+                                }}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <path d="M18 6L6 18M6 6l12 12" />
+                                </svg>
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                />
+
+                <DialogFooter>
+                  <Button type="submit" disabled={uploading}>
+                    {uploading ? 'Uploading...' : 'Save Changes'}
+                  </Button>
+                </DialogFooter>
               </form>
             </Form>
           </DialogContent>
@@ -534,7 +721,8 @@ export default function Dashboard() {
               ) : (
                 <DataTable 
                   columns={columns({ 
-                    onDeleteClick: handleDeleteClick 
+                    onDeleteClick: handleDeleteClick, 
+                    onEditClick: handleEditClick 
                   })} 
                   data={articles} 
                 />

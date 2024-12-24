@@ -85,3 +85,35 @@ export async function DELETE(request: Request) {
     );
   }
 }
+
+export async function PUT(request: Request) {
+  try {
+    const headersList = headers();
+    const authHeader = request.headers.get('authorization');
+    
+    if (!authHeader?.startsWith('Bearer ')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const token = authHeader.split(' ')[1];
+    
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      if (payload.exp * 1000 <= Date.now()) {
+        return NextResponse.json({ error: 'Token expired' }, { status: 401 });
+      }
+    } catch {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
+
+    const article: Article = await request.json();
+    
+    // Update in KV store
+    await kv.set(`article:${article.id}`, article);
+    
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('Failed to update article:', err);
+    return NextResponse.json({ error: 'Failed to update article' }, { status: 500 });
+  }
+}

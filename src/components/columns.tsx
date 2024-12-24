@@ -9,9 +9,10 @@ import Link from "next/link"
 
 type ColumnsProps = {
   onDeleteClick: (article: Article) => void;
+  onEditClick: (article: Article) => void; // Add this prop
 }
 
-export const columns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Article>[] => [
+export const columns = ({ onDeleteClick, onEditClick }: ColumnsProps): ColumnDef<Article>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -123,7 +124,9 @@ export const columns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Article>[] =
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Edit</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => onEditClick(article)}>
+              Edit
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDeleteClick(article)}>
               Delete
             </DropdownMenuItem>

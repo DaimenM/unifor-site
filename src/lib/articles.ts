@@ -34,9 +34,19 @@ export async function deleteArticle(id: string) {
   await kv.srem(ARTICLE_IDS_KEY, id);
 }
 
+export async function updateArticle(article: Article) {
+  // Update the article in KV store
+  await kv.set(`${ARTICLE_PREFIX}${article.id}`, article);
+
+  // Ensure the article ID is in our index
+  await kv.sadd(ARTICLE_IDS_KEY, article.id);
+  
+  return article;
+}
+
 // Example of how to store your current articles:
 export async function seedArticles(articles: Article[]) {
   for (const article of articles) {
     await createArticle(article);
   }
-} 
+}
