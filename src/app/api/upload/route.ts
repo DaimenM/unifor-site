@@ -58,7 +58,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Delete image error:', error);
+    console.error('Delete file error:', error);
     return NextResponse.json(
       { error: (error as Error).message },
       { status: 500 }

@@ -47,7 +47,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LoadingSpinner } from "@/components/ui/loading";
-import { deleteImage } from "@/lib/images";
+import { deleteFile } from "@/lib/files";
 import Image from "next/image";
 import { MarkdownEditor } from "@/components/markdown-editor";
 const chartConfig = {
@@ -73,6 +73,10 @@ const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   images: z.array(z.string()).default([]),
+  files: z.array(z.object({
+    name: z.string(),
+    url: z.string()
+  })).default([])
 });
 
 export default function Dashboard() {
@@ -98,6 +102,7 @@ export default function Dashboard() {
       title: "",
       content: "",
       images: [],
+      files: [],
     },
   });
 
@@ -200,41 +205,59 @@ export default function Dashboard() {
     router.push("/login");
   };
 
-  async function handleImageUpload(
+  async function handleFileUpload(
     files: FileList | null,
     form: UseFormReturn<z.infer<typeof formSchema>>
   ) {
-    if (!files || files.length === 0) return [];
+    if (!files || files.length === 0) return { images: [], files: [] };
 
     setUploading(true);
     try {
-      const uploadPromises = Array.from(files).map(async (file) => {
-        const blob = await upload(file.name, file, {
-          access: "public",
-          handleUploadUrl: "/api/upload",
-        });
-        return blob.url;
-      });
+      const uploadResults = await Promise.all(
+        Array.from(files).map(async (file) => {
+          const blob = await upload(file.name, file, {
+            access: "public",
+            handleUploadUrl: "/api/upload",
+          });
+          return {
+            url: blob.url,
+            name: file.name,
+            type: file.type
+          };
+        })
+      );
 
-      const uploadedUrls = await Promise.all(uploadPromises);
-
-      // Get existing images if any
+      // Separate images and files
       const existingImages = form.getValues("images") || [];
+      const existingFiles = form.getValues("files") || [];
 
-      // Combine existing and new images
-      const newImages = [...existingImages, ...uploadedUrls];
+      const newImages = [...existingImages];
+      const newFiles = [...existingFiles];
+
+      uploadResults.forEach(result => {
+        if (result.type === 'application/pdf') {
+          newFiles.push({
+            name: result.name,
+            url: result.url
+          });
+        } else if (result.type.startsWith('image/')) {
+          newImages.push(result.url);
+        }
+      });
 
       // Update form
       form.setValue("images", newImages);
-      return newImages;
+      form.setValue("files", newFiles);
+
+      return { images: newImages, files: newFiles };
     } catch (error) {
-      console.error("Error uploading images:", error);
+      console.error("Error uploading files:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to upload images",
+        description: "Failed to upload files",
       });
-      return [];
+      return { images: [], files: [] };
     } finally {
       setUploading(false);
     }
@@ -258,6 +281,7 @@ export default function Dashboard() {
       images: values.images,
       date: new Date().toISOString(),
       visitors: [],
+      files: values.files,
     };
 
     try {
@@ -322,7 +346,7 @@ export default function Dashboard() {
         try {
           await Promise.all(
             article.images.map(async (imageUrl) => {
-              await deleteImage(imageUrl);
+              await deleteFile(imageUrl);
             })
           );
         } catch (imageError) {
@@ -333,6 +357,18 @@ export default function Dashboard() {
             description: "Failed to delete some images",
           });
           return; // Stop if image deletion fails
+        }
+      }
+
+      // Delete all associated files
+      if (article.files && article.files.length > 0) {
+        console.log("Deleting files");
+        try {
+          await Promise.all(
+            article.files.map(async (file) => await deleteFile(file.url))
+          );
+        } catch (error) {
+          console.error("Error deleting files:", error);
         }
       }
 
@@ -409,7 +445,7 @@ export default function Dashboard() {
 
         // Delete removed images
         await Promise.all(
-          removedImages.map((imageUrl: string) => deleteImage(imageUrl))
+          removedImages.map((imageUrl: string) => deleteFile(imageUrl))
         );
       }
       // Create updated article object
@@ -418,6 +454,8 @@ export default function Dashboard() {
         title: values.title,
         content: values.content,
         images: values.images,
+        files: values.files,
+        lastEdited: new Date().toISOString(),
       };
 
       // Then update the article
@@ -560,7 +598,7 @@ export default function Dashboard() {
                           accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                           multiple
                           onChange={(e) =>
-                            handleImageUpload(e.target.files, form)
+                            handleFileUpload(e.target.files, form)
                           }
                           disabled={uploading}
                         />
@@ -653,7 +691,7 @@ export default function Dashboard() {
                           accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                           multiple
                           onChange={(e) =>
-                            handleImageUpload(e.target.files, editForm)
+                            handleFileUpload(e.target.files, editForm)
                           }
                           disabled={uploading}
                         />
