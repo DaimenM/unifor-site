@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 import { kv } from "@vercel/kv";
 
 const ARTICLE_IDS_KEY = 'article-ids';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { del } from '@vercel/blob';
 import {deleteImage} from '@/lib/images';
 import {getArticle} from '@/lib/articles';
@@ -117,8 +118,8 @@ export async function DELETE(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const headersList = headers();
-    const authHeader = request.headers.get('authorization');
+    const headersList = await headers();
+    const authHeader = headersList.get('authorization');
     
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
