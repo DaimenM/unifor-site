@@ -71,6 +71,7 @@ export async function POST(request: Request) {
 } 
 export async function DELETE(request: Request) {
   try {
+    console.log('DELETE');
     const authHeader = request.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json(
@@ -81,28 +82,18 @@ export async function DELETE(request: Request) {
 
     const { id } = await request.json();
     
-    // Get article data first
+    // Get article data first to access its images
     const articleId = id.replace('article:', '');
     const article = await getArticle(articleId);
 
     if (!article) {
-      return NextResponse.json({ error: 'Article not found' }, { status: 404 });
-    }
-
-    // Delete all associated images first
-    if (article.images && article.images.length > 0) {
-      await Promise.all(
-        article.images.map(async (imageUrl: string) => {
-          try {
-            await deleteImage(imageUrl);
-          } catch (error) {
-            console.error(`Failed to delete image ${imageUrl}:`, error);
-          }
-        })
+      return NextResponse.json(
+        { error: 'Article not found' }, 
+        { status: 404 }
       );
     }
 
-    // Delete the article
+    // Now delete the article itself
     await kv.del(`article:${articleId}`);
     await kv.srem(ARTICLE_IDS_KEY, articleId);
 

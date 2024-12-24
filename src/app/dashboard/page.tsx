@@ -300,13 +300,33 @@ export default function Dashboard() {
         return;
       }
   
+      // First delete all associated images
+      if (article.images && article.images.length > 0) {
+        try {
+          await Promise.all(
+            article.images.map(async (imageUrl) => {
+              await deleteImage(imageUrl);
+            })
+          );
+        } catch (imageError) {
+          console.error('Error deleting images:', imageError);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to delete some images"
+          });
+          return; // Stop if image deletion fails
+        }
+      }
+  
+      // Then delete the article
       const response = await fetch('/api/articles', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ id: `article:${article.id}` }) // Add the prefix to match KV store format
+        body: JSON.stringify({ id: `article:${article.id}` })
       });
   
       const data = await response.json();

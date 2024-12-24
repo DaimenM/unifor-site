@@ -1,6 +1,5 @@
 export async function deleteImage(imageUrl: string) {
   try {
-    console.log('Deleting image:');
     const response = await fetch('/api/upload', {
       method: 'DELETE',
       headers: {
