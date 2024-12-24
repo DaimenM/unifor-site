@@ -22,6 +22,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Article not found" }, { status: 404 });
     }
 
+    if (article.genInfo) {
+      if(article.genInfo === true) {
+        return NextResponse.json({ success: true });
+      }
+    }
+
     // Update visitors array
     const updatedArticle = {
       ...article,

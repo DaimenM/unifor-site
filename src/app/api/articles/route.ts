@@ -3,12 +3,12 @@ import { Article } from '@/types/article';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { kv } from "@vercel/kv";
-
-const ARTICLE_IDS_KEY = 'article-ids';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { del } from '@vercel/blob';
 import {deleteImage} from '@/lib/images';
 import {getArticle} from '@/lib/articles';
+
+const ARTICLE_IDS_KEY = 'article-ids';
 
 export async function GET() {
   try {
