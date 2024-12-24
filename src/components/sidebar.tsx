@@ -27,34 +27,34 @@ const sidebarGeneralInfoItems = [
 ]
 
 const sidebarUnionResourcesItems = [
-  { icon: FileText, label: "Collective Agreement", href: "/" },
-  { icon: FileText, label: "Constitution and Bylaws", href: "/" },
-  { icon: FileText, label: "Union Representatives", href: "/" },
-  { icon: FileText, label: "Unifor Local 2002", href: "/" },
-  { icon: FileText, label: "Unifor National", href: "/" },
-  { icon: FileText, label: "Women's Advocate", href: "/" },
+  { icon: FileText, label: "Collective Agreement", href: "/article/collective-agreement" },
+  { icon: FileText, label: "Constitution and Bylaws", href: "/article/constitution-and-bylaws" },
+  { icon: FileText, label: "Union Representatives", href: "/article/union-representatives" },
+  { icon: FileText, label: "Unifor Local 2002", href: "/article/unifor-local-2002" },
+  { icon: FileText, label: "Unifor National", href: "/article/unifor-national" },
+  { icon: FileText, label: "Women's Advocate", href: "/article/womens-advocate" },
 ]
 
 const sidebarEmployeeSupportItems = [
-  { icon: FileText, label: "EAP", href: "/" },
-  { icon: FileText, label: "GDIP", href: "/" },
-  { icon: FileText, label: "ESS Anomaly Descriptions", href: "/" },
-  { icon: FileText, label: "Health and Safety", href: "/" },
-  { icon: FileText, label: "Harassment in the Workplace", href: "/" },
-  { icon: FileText, label: "Human Rights", href: "/" },
+  { icon: FileText, label: "EAP", href: "/article/eap" },
+  { icon: FileText, label: "GDIP", href: "/article/gdip" },
+  { icon: FileText, label: "ESS Anomaly Descriptions", href: "/article/ess-anomaly-descriptions" },
+  { icon: FileText, label: "Health and Safety", href: "/article/health-and-safety" },
+  { icon: FileText, label: "Harassment in the Workplace", href: "/article/harassment-in-the-workplace" },
+  { icon: FileText, label: "Human Rights", href: "/article/human-rights" },
 ]
 
 const sidebarJobEmploymentItems = [
-  { icon: FileText, label: "Shift Bid", href: "/" },
-  { icon: FileText, label: "Layoff", href: "/" },
-  { icon: FileText, label: "Pension", href: "/" },
-  { icon: FileText, label: "Insurance", href: "/" },
+  { icon: FileText, label: "Shift Bid", href: "/article/shift-bid" },
+  { icon: FileText, label: "Layoff", href: "/article/layoff" },
+  { icon: FileText, label: "Pension", href: "/article/pension" },
+  { icon: FileText, label: "Insurance", href: "/article/insurance" },
 ]
 
 const sidebarNewsItems = [
-  { icon: FileText, label: "Archived News", href: "/" },
-  { icon: FileText, label: "Call to Action", href: "/" },
-  { icon: FileText, label: "In Memoriam", href: "/" },
+  { icon: FileText, label: "Archived News", href: "/article/archived-news" },
+  { icon: FileText, label: "Call to Action", href: "/article/call-to-action" },
+  { icon: FileText, label: "In Memoriam", href: "/article/in-memoriam" },
 ]
 
 export function AppSidebar() {
