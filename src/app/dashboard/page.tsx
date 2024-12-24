@@ -27,6 +27,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { useForm } from 'react-hook-form';
@@ -47,6 +48,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LoadingSpinner } from "@/components/ui/loading";
+import {DELETE} from "../api//articles/route"
 
 const chartConfig = {
   desktop: {
@@ -83,6 +85,8 @@ export default function Dashboard() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [articleToDelete, setArticleToDelete] = useState<Article | null>(null);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -263,198 +267,282 @@ export default function Dashboard() {
       });
     }
   }
+  const handleDeleteConfirm = async (article: Article) => {
+    try {
+      const token = localStorage.getItem("auth-token");
+      if (!token) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "You must be logged in to delete articles"
+        });
+        return;
+      }
+  
+      const response = await fetch('/api/articles', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ id: `article:${article.id}` }) // Add the prefix to match KV store format
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete article');
+      }
+  
+      setArticles(prevArticles => prevArticles.filter(a => a.id !== article.id));
+      setShowDeleteDialog(false);
+      setArticleToDelete(null);
+      
+      toast({
+        title: "Success", 
+        description: `${article.title} was successfully deleted`
+      });
+      
+      await fetchAnalytics();
+  
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete article"
+      });
+    }
+  };
+  const handleDeleteClick = (article: Article) => {
+    setArticleToDelete(article);
+    setShowDeleteDialog(true);
+  };
+  
+
+
   return (
-    <main className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-bold text-red-600">
-          Admin Dashboard
-        </h1>
-        <div className="flex gap-2">
-          <Button
-            onClick={() => setIsDialogOpen(true)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="h-4 w-4" /> New Article
-          </Button>
-          <Button onClick={handleLogout} variant="outline">
-            Logout
-          </Button>
+    <>
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+  <DialogContent className="sm:max-w-[425px]">
+    <DialogHeader>
+      <DialogTitle>Delete Article</DialogTitle>
+      <DialogDescription>
+        Are you sure you want to delete "{articleToDelete?.title}"? 
+        This action cannot be undone.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+        Cancel
+      </Button>
+      <Button 
+        variant="destructive" 
+        onClick={() => handleDeleteConfirm(articleToDelete!)}
+      >
+        Delete
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-4xl font-bold text-red-600">
+            Admin Dashboard
+          </h1>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setIsDialogOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" /> New Article
+            </Button>
+            <Button onClick={handleLogout} variant="outline">
+              Logout
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Create New Article</DialogTitle>
-            <DialogDescription>
-              Create a new public article for the site
-            </DialogDescription>
-          </DialogHeader>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Create New Article</DialogTitle>
+              <DialogDescription>
+                Create a new public article for the site
+              </DialogDescription>
+            </DialogHeader>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter article title" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <FormField
+                  control={form.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter article title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="content"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Content</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Write your article content here..." 
-                        className="min-h-[200px]"
-                        {...field} 
+                <FormField
+                  control={form.control}
+                  name="content"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Content</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Write your article content here..." 
+                          className="min-h-[200px]"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="images"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Images</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          onChange={(e) => handleImageUpload(e.target.files)}
+                          disabled={uploading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      {field.value.length > 0 && (
+                        <div className="mt-2 space-y-2">
+                          {field.value.map((url, index) => (
+                            <div key={index} className="text-sm text-gray-600">
+                              Image {index + 1} uploaded
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={uploading}>
+                    {uploading ? 'Uploading...' : 'Create Article'}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+
+        <div className="w-full overflow-hidden">
+          <Card>
+            <CardHeader>
+              <CardTitle>Article Traffic</CardTitle>
+              <CardDescription>
+                Showing total visitors across all articles
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="relative w-full overflow-x-auto">
+              <div className="min-w-[400px]">
+                {isLoading ? (
+                  <div>Loading analytics...</div>
+                ) : (
+                  <ChartContainer config={chartConfig} className="w-full min-h-[200px] max-h-[250px]">
+                    <AreaChart
+                      accessibilityLayer
+                      data={chartData}
+                      margin={{
+                        left: isMobile ? 8 : 12,
+                        right: isMobile ? 8 : 12,
+                        top: 10,
+                        bottom: 10,
+                      }}
+                    >
+                      <CartesianGrid vertical={false} />
+                      <XAxis
+                        dataKey="month"
+                        tickLine={false}
+                        axisLine={false}
+                        tickMargin={8}
+                        tickFormatter={(value) => value.slice(0, 3)}
+                        interval={isMobile ? "preserveStartEnd" : 0}
+                        tick={{ fontSize: isMobile ? 10 : 12 }}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="images"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Images</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={(e) => handleImageUpload(e.target.files)}
-                        disabled={uploading}
+                      <ChartTooltip
+                        cursor={false}
+                        content={<ChartTooltipContent indicator="dot" />}
                       />
-                    </FormControl>
-                    <FormMessage />
-                    {field.value.length > 0 && (
-                      <div className="mt-2 space-y-2">
-                        {field.value.map((url, index) => (
-                          <div key={index} className="text-sm text-gray-600">
-                            Image {index + 1} uploaded
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </FormItem>
+                      <Area
+                        dataKey="mobile"
+                        type="natural"
+                        fill="var(--color-mobile)"
+                        fillOpacity={0.4}
+                        stroke="var(--color-mobile)"
+                        stackId="a"
+                      />
+                      <Area
+                        dataKey="desktop"
+                        type="natural"
+                        fill="var(--color-desktop)"
+                        fillOpacity={0.4}
+                        stroke="var(--color-desktop)"
+                        stackId="a"
+                      />
+                    </AreaChart>
+                  </ChartContainer>
                 )}
-              />
-
-              <div className="flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={uploading}>
-                  {uploading ? 'Uploading...' : 'Create Article'}
-                </Button>
               </div>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      <div className="w-full overflow-hidden">
-        <Card>
-          <CardHeader>
-            <CardTitle>Article Traffic</CardTitle>
-            <CardDescription>
-              Showing total visitors across all articles
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="relative w-full overflow-x-auto">
-            <div className="min-w-[400px]">
-              {isLoading ? (
-                <div>Loading analytics...</div>
-              ) : (
-                <ChartContainer config={chartConfig} className="w-full min-h-[200px] max-h-[250px]">
-                  <AreaChart
-                    accessibilityLayer
-                    data={chartData}
-                    margin={{
-                      left: isMobile ? 8 : 12,
-                      right: isMobile ? 8 : 12,
-                      top: 10,
-                      bottom: 10,
-                    }}
-                  >
-                    <CartesianGrid vertical={false} />
-                    <XAxis
-                      dataKey="month"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      tickFormatter={(value) => value.slice(0, 3)}
-                      interval={isMobile ? "preserveStartEnd" : 0}
-                      tick={{ fontSize: isMobile ? 10 : 12 }}
-                    />
-                    <ChartTooltip
-                      cursor={false}
-                      content={<ChartTooltipContent indicator="dot" />}
-                    />
-                    <Area
-                      dataKey="mobile"
-                      type="natural"
-                      fill="var(--color-mobile)"
-                      fillOpacity={0.4}
-                      stroke="var(--color-mobile)"
-                      stackId="a"
-                    />
-                    <Area
-                      dataKey="desktop"
-                      type="natural"
-                      fill="var(--color-desktop)"
-                      fillOpacity={0.4}
-                      stroke="var(--color-desktop)"
-                      stackId="a"
-                    />
-                  </AreaChart>
-                </ChartContainer>
-              )}
-            </div>
-          </CardContent>
-          <CardFooter>
-            <div className="flex w-full items-start gap-2 text-sm">
-              <div className="grid gap-2">
-                <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                  Traffic data for {new Date().getFullYear()}
+            </CardContent>
+            <CardFooter>
+              <div className="flex w-full items-start gap-2 text-sm">
+                <div className="grid gap-2">
+                  <div className="flex items-center gap-2 leading-none text-muted-foreground">
+                    Traffic data for {new Date().getFullYear()}
+                  </div>
                 </div>
               </div>
-            </div>
-          </CardFooter>
-        </Card>
-      </div>
+            </CardFooter>
+          </Card>
+        </div>
 
-      <div className="w-full overflow-x-auto mt-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Articles</CardTitle>
-            <CardDescription>
-              A list of all articles with their analytics and information
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div>Loading articles...</div>
-            ) : (
-              <DataTable columns={columns} data={articles} />
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </main>
+        <div className="w-full overflow-x-auto mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Articles</CardTitle>
+              <CardDescription>
+                A list of all articles with their analytics and information
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div>Loading articles...</div>
+              ) : (
+                <DataTable 
+                  columns={columns({ 
+                    onDeleteClick: handleDeleteClick 
+                  })} 
+                  data={articles} 
+                />
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </>
   );
 }

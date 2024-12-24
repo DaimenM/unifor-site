@@ -2,6 +2,7 @@ import { getAllArticles, createArticle } from '@/lib/articles';
 import { Article } from '@/types/article';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { kv } from "@vercel/kv";
 
 export async function GET() {
   try {
@@ -62,3 +63,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Failed to create article' }, { status: 500 });
   }
 } 
+export async function DELETE(request: Request) {
+  try {
+    // Verify auth token
+    const authHeader = request.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return NextResponse.json(
+        { success: false, message: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const { id } = await request.json();
+    await kv.del(id); // This will now delete the correctly prefixed key
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Delete article error:", error);
+    return NextResponse.json(
+      { success: false, message: "Failed to delete article" },
+      { status: 500 }
+    );
+  }
+}
