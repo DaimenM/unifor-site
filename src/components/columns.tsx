@@ -7,7 +7,11 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import Link from "next/link"
 
-export const columns: ColumnDef<Article>[] = [
+type ColumnsProps = {
+  onDeleteClick: (article: Article) => void;
+}
+
+export const columns = ({ onDeleteClick }: ColumnsProps): ColumnDef<Article>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -107,8 +111,9 @@ export const columns: ColumnDef<Article>[] = [
   },
   {
     id: "actions",
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     cell: ({ row }) => {
+      const article = row.original
+      
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -119,7 +124,9 @@ export const columns: ColumnDef<Article>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onDeleteClick(article)}>
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
