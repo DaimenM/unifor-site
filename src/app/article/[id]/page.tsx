@@ -15,6 +15,7 @@ import { ScrollToTop } from "@/components/scroll-to-top";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import ReactMarkdown from 'react-markdown';
+import { FileAttachment } from "@/components/file-attachment";
 
 type Props = {
   params: Promise<{ id: string }>
@@ -96,26 +97,7 @@ export default async function ArticlePage(props: Props) {
               {article.files.map((file, index) => (
                 <div key={index} className="border rounded-lg p-4">
                   <h3 className="font-semibold mb-2">{file.name}</h3>
-                  {file.url.toLowerCase().endsWith('.pdf') ? (
-                    <div className="aspect-[16/9] w-full">
-                      <object
-                        data={file.url}
-                        type="application/pdf"
-                        className="w-full h-full"
-                      >
-                        <p>
-                          Your browser doesn&apos;t support PDF preview.{' '}
-                          <a href={file.url} className="text-red-600 hover:underline" target="_blank" rel="noopener noreferrer">
-                            Download PDF
-                          </a>
-                        </p>
-                      </object>
-                    </div>
-                  ) : (
-                    <a href={file.url} className="text-red-600 hover:underline" target="_blank" rel="noopener noreferrer">
-                      Download {file.name}
-                    </a>
-                  )}
+                  <FileAttachment file={file} />
                 </div>
               ))}
             </div>
