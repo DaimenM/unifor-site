@@ -866,6 +866,7 @@ export default function Dashboard() {
                               {/* Render images */}
                               {field.value.map((imageUrl, index) => {
                                 const fileName = imageUrl.split("/").pop() || `Image ${index + 1}`;
+                                const fileType = imageUrl.split(".").pop()?.toUpperCase() || "IMAGE";
                                 return (
                                   <tr key={`image-${index}`} className="border-t">
                                     <td className="p-2">
@@ -886,7 +887,7 @@ export default function Dashboard() {
                                     </td>
                                     <td className="p-2">
                                       <p className="text-sm text-muted-foreground">
-                                        Image
+                                        {fileType}
                                       </p>
                                     </td>
                                     <td className="p-2">
@@ -894,7 +895,8 @@ export default function Dashboard() {
                                         type="button"
                                         variant="destructive"
                                         size="sm"
-                                        onClick={() => {
+                                        onClick={async () => {
+                                          await deleteFile(imageUrl); // Delete from blob storage
                                           const newImages = field.value.filter(
                                             (_, i) => i !== index
                                           );
@@ -909,39 +911,43 @@ export default function Dashboard() {
                               })}
 
                               {/* Render other files */}
-                              {editForm.getValues("files")?.map((file, index) => (
-                                <tr key={`file-${index}`} className="border-t">
-                                  <td className="p-2">
-                                    <div className="h-16 w-16 relative flex items-center justify-center bg-muted rounded-sm">
-                                      <FileIcon className="h-8 w-8 text-muted-foreground" />
-                                    </div>
-                                  </td>
-                                  <td className="p-2">
-                                    <p className="text-sm truncate max-w-[200px]" title={file.name}>
-                                      {file.name}
-                                    </p>
-                                  </td>
-                                  <td className="p-2">
-                                    <p className="text-sm text-muted-foreground">
-                                      Document
-                                    </p>
-                                  </td>
-                                  <td className="p-2">
-                                    <Button
-                                      type="button"
-                                      variant="destructive"
-                                      size="sm"
-                                      onClick={() => {
-                                        const currentFiles = editForm.getValues("files") || [];
-                                        const newFiles = currentFiles.filter((_, i) => i !== index);
-                                        editForm.setValue("files", newFiles);
-                                      }}
-                                    >
-                                      Delete
-                                    </Button>
-                                  </td>
-                                </tr>
-                              ))}
+                              {editForm.getValues("files")?.map((file, index) => {
+                                const fileType = file.name.split(".").pop()?.toUpperCase() || "DOCUMENT";
+                                return (
+                                  <tr key={`file-${index}`} className="border-t">
+                                    <td className="p-2">
+                                      <div className="h-16 w-16 relative flex items-center justify-center bg-muted rounded-sm">
+                                        <FileIcon className="h-8 w-8 text-muted-foreground" />
+                                      </div>
+                                    </td>
+                                    <td className="p-2">
+                                      <p className="text-sm truncate max-w-[200px]" title={file.name}>
+                                        {file.name}
+                                      </p>
+                                    </td>
+                                    <td className="p-2">
+                                      <p className="text-sm text-muted-foreground">
+                                        {fileType}
+                                      </p>
+                                    </td>
+                                    <td className="p-2">
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={async () => {
+                                          await deleteFile(file.url); // Delete from blob storage
+                                          const currentFiles = editForm.getValues("files") || [];
+                                          const newFiles = currentFiles.filter((_, i) => i !== index);
+                                          editForm.setValue("files", newFiles);
+                                        }}
+                                      >
+                                        Delete
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
                             </tbody>
                           </table>
                         </div>

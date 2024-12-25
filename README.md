@@ -15,6 +15,7 @@ npm run dev
 - Fill in missing images for articles
 - Fill in contact page [Kay]
 - ~~Create 404 article not found page~~
+- improve upload in editing [dame]
 - Additional error handling and cleanup
 - Search bar [Ongoing]
 - Test all features (delete, edit, mass upload of articles) [Both]
