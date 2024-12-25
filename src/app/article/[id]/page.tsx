@@ -16,6 +16,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import ReactMarkdown from 'react-markdown';
 import { FileAttachment } from "@/components/file-attachment";
+import { stripMarkdown } from "@/lib/utils";
 
 type Props = {
   params: Promise<{ id: string }>
@@ -37,7 +38,7 @@ export async function generateMetadata(
   }
   const pageMetadata: Metadata = {
     title: article.title,
-    description: article.content.substring(0, 20),
+    description: stripMarkdown(article.content).substring(0, 150) + "...",
   }
 
   if(article.images.length > 0) {
