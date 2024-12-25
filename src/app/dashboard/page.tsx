@@ -29,7 +29,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Plus, FileIcon } from "lucide-react";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -86,6 +86,10 @@ export default function Dashboard() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<{
+    images: string[];
+    files: { name: string; url: string; }[];
+  }>({ images: [], files: [] });
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [isAuthChecking, setIsAuthChecking] = useState(true);
@@ -236,12 +240,25 @@ export default function Dashboard() {
 
       uploadResults.forEach(result => {
         if (result.type === 'application/pdf') {
-          newFiles.push({
+          const fileData = {
             name: result.name,
             url: result.url
-          });
+          };
+          newFiles.push(fileData);
+          if (form === form) { // Check if this is the create form
+            setUploadedFiles(prev => ({
+              ...prev,
+              files: [...prev.files, fileData]
+            }));
+          }
         } else if (result.type.startsWith('image/')) {
           newImages.push(result.url);
+          if (form === form) { // Check if this is the create form
+            setUploadedFiles(prev => ({
+              ...prev,
+              images: [...prev.images, result.url]
+            }));
+          }
         }
       });
 
@@ -420,6 +437,7 @@ export default function Dashboard() {
       title: article.title,
       content: article.content,
       images: article.images,
+      files: article.files || []
     });
     setIsEditDialogOpen(true);
   };
@@ -436,17 +454,22 @@ export default function Dashboard() {
     }
 
     try {
-      // Get the current article to compare images
+      // Get the current article to compare images and files
       const currentArticle = articleToEdit;
       if (currentArticle) {
         const removedImages = currentArticle.images.filter(
           (img: string) => !values.images.includes(img)
         );
 
-        // Delete removed images
-        await Promise.all(
-          removedImages.map((imageUrl: string) => deleteFile(imageUrl))
-        );
+        const removedFiles = currentArticle.files?.filter(
+          (file) => !values.files.some(f => f.url === file.url)
+        ) || [];
+
+        // Delete removed images and files
+        await Promise.all([
+          ...removedImages.map((imageUrl: string) => deleteFile(imageUrl)),
+          ...removedFiles.map((file) => deleteFile(file.url))
+        ]);
       }
       // Create updated article object
       const updatedArticle = {
@@ -497,6 +520,31 @@ export default function Dashboard() {
     }
   }
 
+  const handleDialogClose = async (type: 'create' | 'edit') => {
+    if (type === 'create') {
+      // Clean up any uploaded files when canceling creation
+      const filesToDelete = [
+        ...uploadedFiles.images,
+        ...uploadedFiles.files.map(f => f.url)
+      ];
+      
+      if (filesToDelete.length > 0) {
+        try {
+          await Promise.all(filesToDelete.map(url => deleteFile(url)));
+        } catch (error) {
+          console.error('Error cleaning up files:', error);
+        }
+      }
+      
+      setUploadedFiles({ images: [], files: [] });
+      setIsDialogOpen(false);
+      form.reset();
+    } else {
+      setIsEditDialogOpen(false);
+      editForm.reset();
+    }
+  };
+
   return (
     <>
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -541,7 +589,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          if (!open) handleDialogClose('create');
+          else setIsDialogOpen(true);
+        }}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Article</DialogTitle>
@@ -604,13 +655,111 @@ export default function Dashboard() {
                         />
                       </FormControl>
                       <FormMessage />
-                      {field.value.length > 0 && (
-                        <div className="mt-2 space-y-2">
-                          {field.value.map((url, index) => (
-                            <div key={index} className="text-sm text-gray-600">
-                              Image {index + 1} uploaded
-                            </div>
-                          ))}
+
+                      {/* Show both images and files in the table */}
+                      {((field.value && field.value.length > 0) || (form.getValues("files") && form.getValues("files").length > 0)) && (
+                        <div className="mt-4 border rounded-md">
+                          <table className="w-full">
+                            <thead className="bg-muted">
+                              <tr>
+                                <th className="p-2 text-left">Preview</th>
+                                <th className="p-2 text-left">File Name</th>
+                                <th className="p-2 text-left">Type</th>
+                                <th className="p-2 text-left">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {/* Render images */}
+                              {field.value.map((imageUrl, index) => {
+                                const fileName = imageUrl.split("/").pop() || `Image ${index + 1}`;
+                                return (
+                                  <tr key={`image-${index}`} className="border-t">
+                                    <td className="p-2">
+                                      <div className="h-16 w-16 relative">
+                                        <Image
+                                          src={imageUrl}
+                                          alt={fileName}
+                                          className="h-full w-full object-cover rounded-sm"
+                                          width={64}
+                                          height={64}
+                                        />
+                                      </div>
+                                    </td>
+                                    <td className="p-2">
+                                      <p className="text-sm truncate max-w-[200px]" title={fileName}>
+                                        {fileName}
+                                      </p>
+                                    </td>
+                                    <td className="p-2">
+                                      <p className="text-sm text-muted-foreground">
+                                        Image
+                                      </p>
+                                    </td>
+                                    <td className="p-2">
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={async () => {
+                                          await deleteFile(imageUrl);
+                                          const newImages = field.value.filter(
+                                            (_, i) => i !== index
+                                          );
+                                          form.setValue("images", newImages);
+                                          setUploadedFiles(prev => ({
+                                            ...prev,
+                                            images: prev.images.filter(img => img !== imageUrl)
+                                          }));
+                                        }}
+                                      >
+                                        Delete
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+
+                              {/* Render other files */}
+                              {form.getValues("files")?.map((file, index) => (
+                                <tr key={`file-${index}`} className="border-t">
+                                  <td className="p-2">
+                                    <div className="h-16 w-16 relative flex items-center justify-center bg-muted rounded-sm">
+                                      <FileIcon className="h-8 w-8 text-muted-foreground" />
+                                    </div>
+                                  </td>
+                                  <td className="p-2">
+                                    <p className="text-sm truncate max-w-[200px]" title={file.name}>
+                                      {file.name}
+                                    </p>
+                                  </td>
+                                  <td className="p-2">
+                                    <p className="text-sm text-muted-foreground">
+                                      Document
+                                    </p>
+                                  </td>
+                                  <td className="p-2">
+                                    <Button
+                                      type="button"
+                                      variant="destructive"
+                                      size="sm"
+                                      onClick={async () => {
+                                        await deleteFile(file.url);
+                                        const currentFiles = form.getValues("files") || [];
+                                        const newFiles = currentFiles.filter((_, i) => i !== index);
+                                        form.setValue("files", newFiles);
+                                        setUploadedFiles(prev => ({
+                                          ...prev,
+                                          files: prev.files.filter(f => f.url !== file.url)
+                                        }));
+                                      }}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
                       )}
                     </FormItem>
@@ -621,7 +770,7 @@ export default function Dashboard() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setIsDialogOpen(false)}
+                    onClick={() => handleDialogClose('create')}
                   >
                     Cancel
                   </Button>
@@ -634,7 +783,10 @@ export default function Dashboard() {
           </DialogContent>
         </Dialog>
 
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
+          if (!open) handleDialogClose('edit');
+          else setIsEditDialogOpen(true);
+        }}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Article</DialogTitle>
@@ -698,30 +850,24 @@ export default function Dashboard() {
                       </FormControl>
                       <FormMessage />
 
-                      {/* Add this new section for image previews */}
-                      {field.value && field.value.length > 0 && (
+                      {/* Show both images and files in the table */}
+                      {((field.value && field.value.length > 0) || (editForm.getValues("files") && editForm.getValues("files").length > 0)) && (
                         <div className="mt-4 border rounded-md">
                           <table className="w-full">
                             <thead className="bg-muted">
                               <tr>
                                 <th className="p-2 text-left">Preview</th>
                                 <th className="p-2 text-left">File Name</th>
-                                <th className="p-2 text-left">Uploaded</th>
+                                <th className="p-2 text-left">Type</th>
                                 <th className="p-2 text-left">Actions</th>
                               </tr>
                             </thead>
                             <tbody>
+                              {/* Render images */}
                               {field.value.map((imageUrl, index) => {
-                                // Extract filename from URL
-                                const fileName =
-                                  imageUrl.split("/").pop() ||
-                                  `Image ${index + 1}`;
-                                // Use current date as upload date (you might want to store actual upload dates)
-                                const uploadDate =
-                                  new Date().toLocaleDateString();
-
+                                const fileName = imageUrl.split("/").pop() || `Image ${index + 1}`;
                                 return (
-                                  <tr key={index} className="border-t">
+                                  <tr key={`image-${index}`} className="border-t">
                                     <td className="p-2">
                                       <div className="h-16 w-16 relative">
                                         <Image
@@ -734,16 +880,13 @@ export default function Dashboard() {
                                       </div>
                                     </td>
                                     <td className="p-2">
-                                      <p
-                                        className="text-sm truncate max-w-[200px]"
-                                        title={fileName}
-                                      >
+                                      <p className="text-sm truncate max-w-[200px]" title={fileName}>
                                         {fileName}
                                       </p>
                                     </td>
                                     <td className="p-2">
                                       <p className="text-sm text-muted-foreground">
-                                        {uploadDate}
+                                        Image
                                       </p>
                                     </td>
                                     <td className="p-2">
@@ -755,10 +898,7 @@ export default function Dashboard() {
                                           const newImages = field.value.filter(
                                             (_, i) => i !== index
                                           );
-                                          editForm.setValue(
-                                            "images",
-                                            newImages
-                                          );
+                                          editForm.setValue("images", newImages);
                                         }}
                                       >
                                         Delete
@@ -767,6 +907,41 @@ export default function Dashboard() {
                                   </tr>
                                 );
                               })}
+
+                              {/* Render other files */}
+                              {editForm.getValues("files")?.map((file, index) => (
+                                <tr key={`file-${index}`} className="border-t">
+                                  <td className="p-2">
+                                    <div className="h-16 w-16 relative flex items-center justify-center bg-muted rounded-sm">
+                                      <FileIcon className="h-8 w-8 text-muted-foreground" />
+                                    </div>
+                                  </td>
+                                  <td className="p-2">
+                                    <p className="text-sm truncate max-w-[200px]" title={file.name}>
+                                      {file.name}
+                                    </p>
+                                  </td>
+                                  <td className="p-2">
+                                    <p className="text-sm text-muted-foreground">
+                                      Document
+                                    </p>
+                                  </td>
+                                  <td className="p-2">
+                                    <Button
+                                      type="button"
+                                      variant="destructive"
+                                      size="sm"
+                                      onClick={() => {
+                                        const currentFiles = editForm.getValues("files") || [];
+                                        const newFiles = currentFiles.filter((_, i) => i !== index);
+                                        editForm.setValue("files", newFiles);
+                                      }}
+                                    >
+                                      Delete
+                                    </Button>
+                                  </td>
+                                </tr>
+                              ))}
                             </tbody>
                           </table>
                         </div>

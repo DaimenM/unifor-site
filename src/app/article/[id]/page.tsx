@@ -90,19 +90,6 @@ export default async function ArticlePage(props: Props) {
         <div className="prose max-w-none opacity-0 animate-fade-up [animation-delay:300ms] [animation-fill-mode:forwards]">
           <ReactMarkdown>{article.content}</ReactMarkdown>
         </div>
-        {article.files && article.files.length > 0 && (
-          <div className="mt-8 opacity-0 animate-fade-up [animation-delay:350ms] [animation-fill-mode:forwards]">
-            <h2 className="text-2xl font-bold text-red-600 mb-4">Attachments</h2>
-            <div className="grid gap-4">
-              {article.files.map((file, index) => (
-                <div key={index} className="border rounded-lg p-4">
-                  <h3 className="font-semibold mb-2">{file.name}</h3>
-                  <FileAttachment file={file} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
         <div className="mt-8 grid gap-4 md:grid-cols-2 opacity-0 animate-fade-up [animation-delay:400ms] [animation-fill-mode:forwards]">
           {article.images.map((image: string, index: number) => (
             <Image
@@ -115,6 +102,19 @@ export default async function ArticlePage(props: Props) {
             />
           ))}
         </div>
+        {article.files && article.files.length > 0 && (
+          <div className="mt-8 opacity-0 animate-fade-up [animation-delay:450ms] [animation-fill-mode:forwards]">
+            <h2 className="text-2xl font-bold text-red-600 mb-4">Attachments</h2>
+            <div className="grid gap-4">
+              {article.files.map((file, index) => (
+                <div key={index} className="border rounded-lg p-4">
+                  <h3 className="font-semibold mb-2">{file.name}</h3>
+                  <FileAttachment file={file} />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {article.embeds && (
           <div className="mt-8 opacity-0 animate-fade-up [animation-delay:500ms] [animation-fill-mode:forwards]">
             {article.embeds.map((embed: string, index: number) => (

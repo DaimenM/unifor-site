@@ -9,57 +9,31 @@ export default function TestPage() {
 
   const articles: Article[] = [
     {
-      id: "collective-agreement",
-      title: "Collective Agreement",
+      id: "archived-news",
+      title: "Archived News",
       content: "To be filled",
       date: new Date().toISOString(),
       images: [],
       visitors: [],
-      genInfo: true
+      genInfo: true,
     },
     {
-      id: "constitution-and-bylaws",
-      title: "Constitution and Bylaws",
+      id: "call-to-action",
+      title: "Call to Action",
       content: "To be filled",
       date: new Date().toISOString(),
       images: [],
       visitors: [],
-      genInfo: true
+      genInfo: true,
     },
     {
-      id: "union-representatives",
-      title: "Union Representatives",
+      id: "in-memoriam",
+      title: "In Memoriam",
       content: "To be filled",
       date: new Date().toISOString(),
       images: [],
       visitors: [],
-      genInfo: true
-    }, {
-      id: "unifor-local-2002",
-      title: "Unifor Local 2002",
-      content: "To be filled",
-      date: new Date().toISOString(),
-      images: [],
-      visitors: [],
-      genInfo: true
-    },
-    {
-      id: "unifor-national",
-      title: "Unifor National",
-      content: "To be filled",
-      date: new Date().toISOString(),
-      images: [],
-      visitors: [],
-      genInfo: true
-    },
-    {
-      id: "womens-advocate",
-      title: "Women's Advocate",
-      content: "To be filled",
-      date: new Date().toISOString(),
-      images: [],
-      visitors: [],
-      genInfo: true
+      genInfo: true,
     }
   ]
 
