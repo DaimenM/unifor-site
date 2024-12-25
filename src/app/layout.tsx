@@ -9,8 +9,8 @@ import { Suspense } from "react"
 import { LoadingSpinner } from "@/components/ui/loading"
 
 export const metadata = {
-  title: "District 300 Blog",
-  description: "A blog for Unifor Local 2002 District 300",
+  title: "UNIFOR NATIONAL - District 300",
+  description: "An information hub for Unifor Local 2002 District 300",
 }
 
 export default function RootLayout({
