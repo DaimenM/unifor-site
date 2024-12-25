@@ -12,6 +12,7 @@ npm run dev
 - ~~Remove~~/Edit article capabilities for admin
 - Fix edit article display and deletion of documents that are not images
 - Put remaining info articles in sidebar [Kay - Ongoing]
+- Fill in missing images for articles
 - Fill in contact page [Kay]
 - ~~Create 404 article not found page~~
 - Additional error handling and cleanup
