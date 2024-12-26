@@ -99,6 +99,10 @@ export default function Dashboard() {
   const [articleToEdit, setArticleToEdit] = useState<Article | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [editUploading, setEditUploading] = useState(false);
+  const [filesToDelete, setFilesToDelete] = useState<{
+    images: string[];
+    files: { name: string; url: string; }[];
+  }>({ images: [], files: [] });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -454,23 +458,12 @@ export default function Dashboard() {
     }
 
     try {
-      // Get the current article to compare images and files
-      const currentArticle = articleToEdit;
-      if (currentArticle) {
-        const removedImages = currentArticle.images.filter(
-          (img: string) => !values.images.includes(img)
-        );
+      // Delete files that were marked for deletion
+      await Promise.all([
+        ...filesToDelete.images.map((imageUrl) => deleteFile(imageUrl)),
+        ...filesToDelete.files.map((file) => deleteFile(file.url))
+      ]);
 
-        const removedFiles = currentArticle.files?.filter(
-          (file) => !values.files.some(f => f.url === file.url)
-        ) || [];
-
-        // Delete removed images and files
-        await Promise.all([
-          ...removedImages.map((imageUrl: string) => deleteFile(imageUrl)),
-          ...removedFiles.map((file) => deleteFile(file.url))
-        ]);
-      }
       // Create updated article object
       const updatedArticle = {
         ...articleToEdit,
@@ -509,6 +502,9 @@ export default function Dashboard() {
 
       // Refresh the articles list
       fetchAnalytics();
+
+      // Clear the files to delete
+      setFilesToDelete({ images: [], files: [] });
     } catch (error) {
       console.error("Error updating article:", error);
       toast({
@@ -542,6 +538,7 @@ export default function Dashboard() {
     } else {
       setIsEditDialogOpen(false);
       editForm.reset();
+      setFilesToDelete({ images: [], files: [] }); // Clear pending deletions
     }
   };
 
@@ -948,12 +945,13 @@ export default function Dashboard() {
                                         type="button"
                                         variant="destructive"
                                         size="sm"
-                                        onClick={async () => {
-                                          await deleteFile(imageUrl); // Delete from blob storage
-                                          const newImages = field.value.filter(
-                                            (_, i) => i !== index
-                                          );
+                                        onClick={() => {
+                                          const newImages = field.value.filter((_, i) => i !== index);
                                           editForm.setValue("images", newImages);
+                                          setFilesToDelete(prev => ({
+                                            ...prev,
+                                            images: [...prev.images, imageUrl]
+                                          }));
                                         }}
                                       >
                                         Delete
@@ -988,11 +986,14 @@ export default function Dashboard() {
                                         type="button"
                                         variant="destructive"
                                         size="sm"
-                                        onClick={async () => {
-                                          await deleteFile(file.url); // Delete from blob storage
+                                        onClick={() => {
                                           const currentFiles = editForm.getValues("files") || [];
                                           const newFiles = currentFiles.filter((_, i) => i !== index);
                                           editForm.setValue("files", newFiles);
+                                          setFilesToDelete(prev => ({
+                                            ...prev,
+                                            files: [...prev.files, file]
+                                          }));
                                         }}
                                       >
                                         Delete
