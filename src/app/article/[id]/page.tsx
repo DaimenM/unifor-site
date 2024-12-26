@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import {
   Breadcrumb,
@@ -51,6 +50,16 @@ export async function generateMetadata(
  
   return pageMetadata;
 }
+
+const CustomImage = ({ src, alt }: { src?: string; alt?: string }) => {
+  return (
+    <img 
+      src={src} 
+      alt={alt || ''} 
+      className="max-w-[400px] w-full h-auto"
+    />
+  );
+};
 
 export default async function ArticlePage(props: Props) {
   const params = await props.params;
@@ -107,19 +116,13 @@ export default async function ArticlePage(props: Props) {
           <p className="text-gray-400 mb-8 opacity-0 animate-fade-up [animation-delay:200ms] [animation-fill-mode:forwards]">{new Date(article.date).toLocaleDateString()}</p>
         )}
         <div className="prose max-w-none opacity-0 animate-fade-up [animation-delay:300ms] [animation-fill-mode:forwards]">
-          <ReactMarkdown>{article.content}</ReactMarkdown>
-        </div>
-        <div className="mt-8 grid gap-4 md:grid-cols-2 opacity-0 animate-fade-up [animation-delay:400ms] [animation-fill-mode:forwards]">
-          {article.images.map((image: string, index: number) => (
-            <Image
-              key={index}
-              src={image}
-              alt={`Image ${index + 1} for ${article.title}`}
-              width={400}
-              height={300}
-              className="rounded-lg shadow-md"
-            />
-          ))}
+          <ReactMarkdown 
+            components={{
+              img: CustomImage
+            }}
+          >
+            {article.content}
+          </ReactMarkdown>
         </div>
         {article.files && article.files.length > 0 && (
           <div className="mt-8 opacity-0 animate-fade-up [animation-delay:450ms] [animation-fill-mode:forwards]">

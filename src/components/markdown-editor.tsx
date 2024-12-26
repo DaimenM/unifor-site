@@ -12,7 +12,7 @@ import {
   Heading2, 
   Heading3, 
   List, 
-  Link as LinkIcon,
+  Link as LinkIcon, 
   Eye,
   Edit2
 } from "lucide-react";
@@ -98,6 +98,7 @@ export function MarkdownEditor({ content, onChange, images = [] }: MarkdownEdito
             size="sm"
             onClick={() => insertMarkdown("**")}
             title="Bold"
+            disabled={isPreview}
           >
             <Bold className="h-4 w-4" />
           </Button>
@@ -107,6 +108,7 @@ export function MarkdownEditor({ content, onChange, images = [] }: MarkdownEdito
             size="sm"
             onClick={() => insertMarkdown("*")}
             title="Italic"
+            disabled={isPreview}
           >
             <Italic className="h-4 w-4" />
           </Button>
@@ -116,6 +118,7 @@ export function MarkdownEditor({ content, onChange, images = [] }: MarkdownEdito
             size="sm"
             onClick={() => insertMarkdown("## ", "", "Heading")}
             title="Heading 2"
+            disabled={isPreview}
           >
             <Heading2 className="h-4 w-4" />
           </Button>
@@ -125,6 +128,7 @@ export function MarkdownEditor({ content, onChange, images = [] }: MarkdownEdito
             size="sm"
             onClick={() => insertMarkdown("### ", "", "Heading")}
             title="Heading 3"
+            disabled={isPreview}
           >
             <Heading3 className="h-4 w-4" />
           </Button>
@@ -134,6 +138,7 @@ export function MarkdownEditor({ content, onChange, images = [] }: MarkdownEdito
             size="sm"
             onClick={() => insertMarkdown("- ", "", "List item")}
             title="List"
+            disabled={isPreview}
           >
             <List className="h-4 w-4" />
           </Button>
@@ -143,31 +148,40 @@ export function MarkdownEditor({ content, onChange, images = [] }: MarkdownEdito
             size="sm"
             onClick={() => insertMarkdown("[", "](url)", "link text")}
             title="Link"
+            disabled={isPreview}
           >
             <LinkIcon className="h-4 w-4" />
           </Button>
         </div>
 
         <div className="flex items-center gap-2 ml-auto">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button type="button" variant="outline" size="sm">
-                <ImageIcon className="h-4 w-4 mr-2" />
-                Images
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[400px] sm:w-[540px]">
-              <SheetHeader>
-                <SheetTitle>Image Gallery</SheetTitle>
-                <SheetDescription>
-                  Select an image to insert it into your article
-                </SheetDescription>
-              </SheetHeader>
-              <div className="mt-4">
-                <ImageGallery images={images} onImageSelect={handleImageSelect} />
-              </div>
-            </SheetContent>
-          </Sheet>
+          {!isPreview && (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button type="button" variant="outline" size="sm">
+                  <ImageIcon className="h-4 w-4 mr-2" />
+                  Images
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+                <SheetHeader>
+                  <SheetTitle>Image Gallery</SheetTitle>
+                  <SheetDescription>
+                    Select an image to insert it into your article
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="mt-4">
+                  <ImageGallery images={images} onImageSelect={handleImageSelect} />
+                </div>
+              </SheetContent>
+            </Sheet>
+          )}
+          {isPreview && (
+            <Button type="button" variant="outline" size="sm" disabled>
+              <ImageIcon className="h-4 w-4 mr-2" />
+              Images
+            </Button>
+          )}
           <Button
             type="button"
             variant="outline"

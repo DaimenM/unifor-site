@@ -291,3 +291,8 @@
   scrollbar-width: thin;
   scrollbar-color: rgb(156 163 175) transparent;
 }
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+}

@@ -34,13 +34,13 @@ export function ImageGallery({ images, onImageSelect }: ImageGalleryProps) {
   };
 
   return (
-    <Card className="p-4">
+    <Card className="p-4 h-[calc(100vh-12rem)]">
       <div className="flex items-center gap-2 mb-4">
         <ImageIcon className="h-5 w-5" />
         <h3 className="font-semibold">Image Gallery</h3>
       </div>
-      <ScrollArea className="h-[300px] pr-4">
-        <div className="grid grid-cols-2 gap-4">
+      <ScrollArea className="h-[calc(100%-3rem)]">
+        <div className="grid grid-cols-2 gap-4 pr-4">
           {images.map((imageUrl, index) => (
             <div
               key={index}
