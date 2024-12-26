@@ -3,7 +3,7 @@ import { Article } from "@/types/article";
 
 const ITEMS_PER_PAGE = 12;
 
-export async function getArticles(page: number = 1): Promise<{
+export async function getArticles(page: number = 1, archived: boolean = false): Promise<{
   articles: Article[];
   totalPages: number;
   currentPage: number;
@@ -11,9 +11,13 @@ export async function getArticles(page: number = 1): Promise<{
   try {
     const allArticles = await getAllArticles();
     // Sort articles by date (most recent first)
-    const sortedArticles = allArticles.sort(
+    let sortedArticles = allArticles.sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
+
+    if(archived) {
+      sortedArticles = sortedArticles.filter(article => article.archived);
+    }
 
     const totalPages = Math.ceil(sortedArticles.length / ITEMS_PER_PAGE);
     const start = (page - 1) * ITEMS_PER_PAGE;

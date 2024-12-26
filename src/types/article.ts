@@ -15,4 +15,5 @@ export type Article = {
       url: string;
     }[];
     genInfo?: boolean;
+    archived?: boolean;
   };  

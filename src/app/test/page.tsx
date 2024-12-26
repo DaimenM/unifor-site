@@ -9,26 +9,8 @@ export default function TestPage() {
 
   const articles: Article[] = [
     {
-      id: "archived-news",
-      title: "Archived News",
-      content: "To be filled",
-      date: new Date().toISOString(),
-      images: [],
-      visitors: [],
-      genInfo: true,
-    },
-    {
-      id: "call-to-action",
-      title: "Call to Action",
-      content: "To be filled",
-      date: new Date().toISOString(),
-      images: [],
-      visitors: [],
-      genInfo: true,
-    },
-    {
-      id: "in-memoriam",
-      title: "In Memoriam",
+      id: "gidip",
+      title: "GIDIP",
       content: "To be filled",
       date: new Date().toISOString(),
       images: [],

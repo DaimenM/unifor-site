@@ -9,6 +9,7 @@ npm run dev
 ## TO-DO
 - ~~Login (admin panel/dashboard)~~ [Kay]
 - ~~Fix dashboard responsiveness~~
+- Fix dashboard data table sorting
 - ~~Remove~~/Edit article capabilities for admin
 - Fix edit article display and deletion of documents that are not images
 - Put remaining info articles in sidebar [Kay - Ongoing]
@@ -19,4 +20,5 @@ npm run dev
 - Additional error handling and cleanup
 - Search bar [Ongoing]
 - Test all features (delete, edit, mass upload of articles) [Both]
+- Ask if the people have other things attached to wordpress (emails, external files, forms) as it might be lost in transfer to nextjs
 

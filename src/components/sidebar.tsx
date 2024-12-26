@@ -37,7 +37,7 @@ const sidebarUnionResourcesItems = [
 
 const sidebarEmployeeSupportItems = [
   { icon: FileText, label: "EAP", href: "/article/eap" },
-  { icon: FileText, label: "GDIP", href: "/article/gdip" },
+  { icon: FileText, label: "GIDIP", href: "/article/gidip" },
   { icon: FileText, label: "ESS Anomaly Descriptions", href: "/article/ess-anomaly-descriptions" },
   { icon: FileText, label: "Health and Safety", href: "/article/health-and-safety" },
   { icon: FileText, label: "Harassment in the Workplace", href: "/article/harassment-in-the-workplace" },
@@ -52,7 +52,7 @@ const sidebarJobEmploymentItems = [
 ]
 
 const sidebarNewsItems = [
-  { icon: FileText, label: "Archived News", href: "/article/archived-news" },
+  { icon: FileText, label: "Archived Articles", href: "/archive" },
   { icon: FileText, label: "Call to Action", href: "/article/call-to-action" },
   { icon: FileText, label: "In Memoriam", href: "/article/in-memoriam" },
 ]

@@ -9,6 +9,14 @@ type ArticleListProps = {
 };
 
 export default function ArticleList({ articles }: ArticleListProps) {
+  if (articles.length === 0) {
+    return (
+      <div className="text-center py-10 text-gray-500">
+        There are no articles to show.
+      </div>
+    );
+  }
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {articles.map((article, index) => (
