@@ -681,6 +681,7 @@ export default function Dashboard() {
                         <MarkdownEditor
                           content={field.value}
                           onChange={field.onChange}
+                          images={uploadedFiles.images}
                         />
                       </FormControl>
                       <FormMessage />
@@ -875,6 +876,7 @@ export default function Dashboard() {
                         <MarkdownEditor
                           content={field.value}
                           onChange={field.onChange}
+                          images={[...(articleToEdit?.images || []), ...uploadedFiles.images]}
                         />
                       </FormControl>
                       <FormMessage />

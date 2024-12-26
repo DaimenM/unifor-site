@@ -1,83 +1,96 @@
 "use client";
 
-import { useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
+import { useState, useRef } from "react";
+import { Editor, type OnMount } from "@monaco-editor/react";
 import { Button } from "@/components/ui/button";
+import { ImageGallery } from "@/components/image-gallery";
 import ReactMarkdown from "react-markdown";
-import {
-  Bold,
-  Italic,
-  List,
-  Heading2,
-  Heading3,
+import { 
+  ImageIcon, 
+  Bold, 
+  Italic, 
+  Heading2, 
+  Heading3, 
+  List, 
   Link as LinkIcon,
-  Image as ImageIcon,
   Eye,
-  Edit2,
+  Edit2
 } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { editor } from "monaco-editor";
 
 interface MarkdownEditorProps {
   content: string;
   onChange: (value: string) => void;
-  className?: string;
+  images?: string[];
 }
 
-export function MarkdownEditor({
-  content,
-  onChange,
-  className,
-}: MarkdownEditorProps) {
+export function MarkdownEditor({ content, onChange, images = [] }: MarkdownEditorProps) {
   const [isPreview, setIsPreview] = useState(false);
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
-  const insertMarkdown = (
-    prefix: string,
-    suffix: string = prefix,
-    defaultText = "text",
-    prefixOnly = false
-  ) => {
-    const textarea = document.querySelector(
-      "textarea"
-    ) as HTMLTextAreaElement | null;
-    if (!textarea) return;
+  const handleEditorDidMount: OnMount = (editor) => {
+    editorRef.current = editor;
+  };
 
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = content.substring(start, end);
-    const textToInsert = selectedText || defaultText;
-    
-    // For prefix-only cases (like lists and headings), don't add the suffix
-    const newContent = prefixOnly
-      ? content.substring(0, start) +
-        prefix +
-        textToInsert +
-        content.substring(end)
-      : content.substring(0, start) +
-        prefix +
-        textToInsert +
-        suffix +
-        content.substring(end);
-
-    onChange(newContent);
-
-    // Set cursor position and select the default text if it was inserted
-    setTimeout(() => {
-      textarea.focus();
-      const newStart = start + prefix.length;
-      const newEnd = newStart + textToInsert.length;
+  const handleImageSelect = (imageUrl: string) => {
+    if (editorRef.current) {
+      const editor = editorRef.current;
+      const selection = editor.getSelection();
+      const text = `![Image](${imageUrl})`;
       
-      if (!selectedText && textToInsert === defaultText) {
-        // If we inserted the default text, select it
-        textarea.setSelectionRange(newStart, newEnd);
-      } else {
-        // Otherwise, place cursor at the end
-        textarea.setSelectionRange(newEnd, newEnd);
+      if (selection) {
+        editor.executeEdits('image-insert', [{
+          range: selection,
+          text,
+          forceMoveMarkers: true
+        }]);
       }
-    }, 0);
+      editor.focus();
+    }
+  };
+
+  const insertMarkdown = (prefix: string, suffix: string = prefix, defaultText = "text") => {
+    if (editorRef.current) {
+      const editor = editorRef.current;
+      const selection = editor.getSelection();
+      
+      if (selection) {
+        const text = editor.getModel()?.getValueInRange(selection) || defaultText;
+        editor.executeEdits('format', [{
+          range: selection,
+          text: `${prefix}${text}${suffix}`,
+          forceMoveMarkers: true
+        }]);
+      } else {
+        const position = editor.getPosition();
+        if (position) {
+          editor.executeEdits('format', [{
+            range: {
+              startLineNumber: position.lineNumber,
+              startColumn: position.column,
+              endLineNumber: position.lineNumber,
+              endColumn: position.column
+            },
+            text: `${prefix}${defaultText}${suffix}`,
+            forceMoveMarkers: true
+          }]);
+        }
+      }
+      editor.focus();
+    }
   };
 
   return (
-    <div className={className}>
-      <div className="flex items-center gap-2 mb-2">
+    <div className="space-y-2">
+      <div className="flex items-center gap-2">
         <div className="flex flex-wrap gap-1">
           <Button
             type="button"
@@ -101,7 +114,7 @@ export function MarkdownEditor({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => insertMarkdown("## ", "", "Heading", true)}
+            onClick={() => insertMarkdown("## ", "", "Heading")}
             title="Heading 2"
           >
             <Heading2 className="h-4 w-4" />
@@ -110,7 +123,7 @@ export function MarkdownEditor({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => insertMarkdown("### ", "", "Heading", true)}
+            onClick={() => insertMarkdown("### ", "", "Heading")}
             title="Heading 3"
           >
             <Heading3 className="h-4 w-4" />
@@ -119,7 +132,7 @@ export function MarkdownEditor({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => insertMarkdown("- ", "", "List item", true)}
+            onClick={() => insertMarkdown("- ", "", "List item")}
             title="List"
           >
             <List className="h-4 w-4" />
@@ -133,48 +146,73 @@ export function MarkdownEditor({
           >
             <LinkIcon className="h-4 w-4" />
           </Button>
+        </div>
+
+        <div className="flex items-center gap-2 ml-auto">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button type="button" variant="outline" size="sm">
+                <ImageIcon className="h-4 w-4 mr-2" />
+                Images
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+              <SheetHeader>
+                <SheetTitle>Image Gallery</SheetTitle>
+                <SheetDescription>
+                  Select an image to insert it into your article
+                </SheetDescription>
+              </SheetHeader>
+              <div className="mt-4">
+                <ImageGallery images={images} onImageSelect={handleImageSelect} />
+              </div>
+            </SheetContent>
+          </Sheet>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => insertMarkdown("![", "](url)", "alt text")}
-            title="Image"
+            onClick={(e) => {
+              e.preventDefault();
+              setIsPreview(!isPreview);
+            }}
           >
-            <ImageIcon className="h-4 w-4" />
+            {isPreview ? (
+              <>
+                <Edit2 className="h-4 w-4 mr-2" /> Edit
+              </>
+            ) : (
+              <>
+                <Eye className="h-4 w-4 mr-2" /> Preview
+              </>
+            )}
           </Button>
         </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setIsPreview(!isPreview)}
-          className="ml-auto"
-        >
-          {isPreview ? (
-            <>
-              <Edit2 className="h-4 w-4 mr-2" /> Edit
-            </>
-          ) : (
-            <>
-              <Eye className="h-4 w-4 mr-2" /> Preview
-            </>
-          )}
-        </Button>
       </div>
 
-      {isPreview ? (
-        <div className="prose max-w-none min-h-[200px] p-4 border rounded-md bg-background">
-          <ReactMarkdown>{content}</ReactMarkdown>
-        </div>
-      ) : (
-        <Textarea
-          value={content}
-          onChange={(e) => onChange(e.target.value)}
-          className="min-h-[200px] font-mono"
-          placeholder="Write your article content here..."
-        />
-      )}
+      <div className="relative min-h-[400px] w-full border rounded-md">
+        {isPreview ? (
+          <div className="prose prose-sm max-w-none p-4 prose-headings:mt-4 prose-headings:mb-2">
+            <ReactMarkdown>{content}</ReactMarkdown>
+          </div>
+        ) : (
+          <Editor
+            height="400px"
+            defaultLanguage="markdown"
+            value={content}
+            onChange={(value) => onChange(value || "")}
+            onMount={handleEditorDidMount}
+            options={{
+              minimap: { enabled: false },
+              wordWrap: "on",
+              wrappingIndent: "same",
+              lineNumbers: "off",
+              padding: { top: 16 },
+              scrollBeyondLastLine: false,
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 } 
