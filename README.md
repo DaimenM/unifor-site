@@ -12,9 +12,9 @@ npm run dev
 - Fix dashboard data table sorting
 - ~~Remove~~/Edit article capabilities for admin
 - Fix edit article display and deletion of documents that are not images
-- Put remaining info articles in sidebar [Kay - Ongoing]
+- ~~Put remaining info articles in sidebar~~ [Kay]
 - Fill in missing images for articles
-- Fill in contact page [Kay]
+- ~~Fill in contact page~~ [Kay]
 - ~~Create 404 article not found page~~
 - improve upload in editing [dame]
 - Additional error handling and cleanup

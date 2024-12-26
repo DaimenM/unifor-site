@@ -51,16 +51,6 @@ export async function generateMetadata(
   return pageMetadata;
 }
 
-const CustomImage = ({ src, alt }: { src?: string; alt?: string }) => {
-  return (
-    <img 
-      src={src} 
-      alt={alt || ''} 
-      className="max-w-[400px] w-full h-auto"
-    />
-  );
-};
-
 export default async function ArticlePage(props: Props) {
   const params = await props.params;
   const id = params.id;
@@ -116,13 +106,7 @@ export default async function ArticlePage(props: Props) {
           <p className="text-gray-400 mb-8 opacity-0 animate-fade-up [animation-delay:200ms] [animation-fill-mode:forwards]">{new Date(article.date).toLocaleDateString()}</p>
         )}
         <div className="prose max-w-none opacity-0 animate-fade-up [animation-delay:300ms] [animation-fill-mode:forwards]">
-          <ReactMarkdown 
-            components={{
-              img: CustomImage
-            }}
-          >
-            {article.content}
-          </ReactMarkdown>
+          <ReactMarkdown>{article.content}</ReactMarkdown>
         </div>
         {article.files && article.files.length > 0 && (
           <div className="mt-8 opacity-0 animate-fade-up [animation-delay:450ms] [animation-fill-mode:forwards]">
