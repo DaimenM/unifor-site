@@ -1,11 +1,12 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { MoreHorizontal, ArrowUpDown } from "lucide-react"
+import { MoreHorizontal, ArrowUpDown, Archive } from "lucide-react"
 import { Article } from "@/types/article"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import Link from "next/link"
+import { Badge } from "@/components/ui/badge"
 
 type ColumnsProps = {
   onDeleteClick: (article: Article) => void;
@@ -38,12 +39,20 @@ export const columns = ({ onDeleteClick, onEditClick, onArchiveClick }: ColumnsP
     header: "Title",
     cell: ({ row }) => {
       return (
-        <Link 
-          href={`/article/${row.original.id}`}
-          className="hover:underline text-foreground"
-        >
-          {row.original.title}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link 
+            href={`/article/${row.original.id}`}
+            className="hover:underline text-foreground"
+          >
+            {row.original.title}
+          </Link>
+          {row.original.archived?.isArchived && (
+            <Badge variant="secondary" className="flex items-center gap-1 cursor-help" title={`Archived on ${format(new Date(row.original.archived.date), "PPp")}\nReason: ${row.original.archived.reason}`}>
+              <Archive className="h-3 w-3" />
+              Archived
+            </Badge>
+          )}
+        </div>
       )
     }
   },
@@ -129,7 +138,7 @@ export const columns = ({ onDeleteClick, onEditClick, onArchiveClick }: ColumnsP
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => onArchiveClick(article)}>
-              Archive
+              {article.archived?.isArchived ? "Unarchive" : "Archive"}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => onDeleteClick(article)}>
               Delete

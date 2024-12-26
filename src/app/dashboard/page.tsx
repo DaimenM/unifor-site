@@ -545,6 +545,57 @@ export default function Dashboard() {
     }
   };
 
+  const handleArchiveClick = async (article: Article) => {
+    const token = localStorage.getItem("auth-token");
+    if (!token) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to archive articles",
+      });
+      return;
+    }
+
+    try {
+      const updatedArticle = {
+        ...article,
+        archived: article.archived?.isArchived ? undefined : {
+          date: new Date().toISOString(),
+          reason: "Archived by admin",
+          isArchived: true
+        }
+      };
+
+      const response = await fetch("/api/articles", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updatedArticle),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update article");
+      }
+
+      toast({
+        title: "Success",
+        description: `Article ${article.archived?.isArchived ? 'unarchived' : 'archived'} successfully`,
+      });
+
+      // Refresh the articles list
+      fetchAnalytics();
+    } catch (error) {
+      console.error("Archive error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update article status",
+      });
+    }
+  };
+
   return (
     <>
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -1056,6 +1107,7 @@ export default function Dashboard() {
                   columns={columns({
                     onDeleteClick: handleDeleteClick,
                     onEditClick: handleEditClick,
+                    onArchiveClick: handleArchiveClick,
                   })}
                   data={articles}
                 />

@@ -17,6 +17,8 @@ import { Metadata } from "next";
 import ReactMarkdown from 'react-markdown';
 import { FileAttachment } from "@/components/file-attachment";
 import { stripMarkdown } from "@/lib/utils";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 type Props = {
   params: Promise<{ id: string }>
@@ -83,6 +85,22 @@ export default async function ArticlePage(props: Props) {
             </BreadcrumbList>
           </Breadcrumb>
         </div>
+
+        {article.archived?.isArchived && (
+          <Alert 
+            className="mb-6 border-orange-200 bg-orange-50 text-orange-800 opacity-0 animate-fade-up [animation-delay:50ms] [animation-fill-mode:forwards]"
+          >
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              This article was archived on {new Date(article.archived.date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <h1 className="text-4xl font-bold text-red-600 mb-4 opacity-0 animate-fade-up [animation-delay:100ms] [animation-fill-mode:forwards]">{article.title}</h1>
         {(!article.genInfo) && (

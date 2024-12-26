@@ -16,7 +16,9 @@ export async function getArticles(page: number = 1, archived: boolean = false): 
     );
 
     if(archived) {
-      sortedArticles = sortedArticles.filter(article => article.archived);
+      sortedArticles = sortedArticles.filter(article => article.archived?.isArchived);
+    } else {
+      sortedArticles = sortedArticles.filter(article => !article.archived?.isArchived);
     }
 
     const totalPages = Math.ceil(sortedArticles.length / ITEMS_PER_PAGE);
