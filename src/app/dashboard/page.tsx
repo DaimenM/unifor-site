@@ -104,6 +104,12 @@ export default function Dashboard() {
     files: { name: string; url: string; }[];
   }>({ images: [], files: [] });
 
+  // Add new state for tracking pending uploads
+  const [pendingUploads, setPendingUploads] = useState<{
+    images: string[];
+    files: { name: string; url: string; }[];
+  }>({ images: [], files: [] });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -213,6 +219,7 @@ export default function Dashboard() {
     router.push("/login");
   };
 
+  // Modify handleFileUpload for edit form
   async function handleFileUpload(
     files: FileList | null,
     form: UseFormReturn<z.infer<typeof formSchema>>
@@ -235,42 +242,60 @@ export default function Dashboard() {
         })
       );
 
-      // Separate images and files
-      const existingImages = form.getValues("images") || [];
-      const existingFiles = form.getValues("files") || [];
-
-      const newImages = [...existingImages];
-      const newFiles = [...existingFiles];
-
-      uploadResults.forEach(result => {
-        if (result.type === 'application/pdf') {
-          const fileData = {
-            name: result.name,
-            url: result.url
-          };
-          newFiles.push(fileData);
-          if (form === form) { // Check if this is the create form
-            setUploadedFiles(prev => ({
+      // If this is the edit form, store uploads in pending state
+      if (form === editForm) {
+        uploadResults.forEach(result => {
+          if (result.type === 'application/pdf') {
+            setPendingUploads(prev => ({
               ...prev,
-              files: [...prev.files, fileData]
+              files: [...prev.files, { name: result.name, url: result.url }]
             }));
-          }
-        } else if (result.type.startsWith('image/')) {
-          newImages.push(result.url);
-          if (form === form) { // Check if this is the create form
-            setUploadedFiles(prev => ({
+          } else if (result.type.startsWith('image/')) {
+            setPendingUploads(prev => ({
               ...prev,
               images: [...prev.images, result.url]
             }));
           }
-        }
-      });
+        });
+      } else {
+        // For create form, keep existing behavior
+        const existingImages = form.getValues("images") || [];
+        const existingFiles = form.getValues("files") || [];
 
-      // Update form
-      form.setValue("images", newImages);
-      form.setValue("files", newFiles);
+        const newImages = [...existingImages];
+        const newFiles = [...existingFiles];
 
-      return { images: newImages, files: newFiles };
+        uploadResults.forEach(result => {
+          if (result.type === 'application/pdf') {
+            const fileData = {
+              name: result.name,
+              url: result.url
+            };
+            newFiles.push(fileData);
+            if (form === form) { // Check if this is the create form
+              setUploadedFiles(prev => ({
+                ...prev,
+                files: [...prev.files, fileData]
+              }));
+            }
+          } else if (result.type.startsWith('image/')) {
+            newImages.push(result.url);
+            if (form === form) { // Check if this is the create form
+              setUploadedFiles(prev => ({
+                ...prev,
+                images: [...prev.images, result.url]
+              }));
+            }
+          }
+        });
+
+        // Update form
+        form.setValue("images", newImages);
+        form.setValue("files", newFiles);
+
+        return { images: newImages, files: newFiles };
+      }
+
     } catch (error) {
       console.error("Error uploading files:", error);
       toast({
@@ -278,7 +303,6 @@ export default function Dashboard() {
         title: "Error",
         description: "Failed to upload files",
       });
-      return { images: [], files: [] };
     } finally {
       setUploading(false);
     }
@@ -446,6 +470,7 @@ export default function Dashboard() {
     setIsEditDialogOpen(true);
   };
 
+  // Modify onEditSubmit to include pending uploads
   async function onEditSubmit(values: z.infer<typeof formSchema>) {
     const token = localStorage.getItem("auth-token");
     if (!token) {
@@ -464,13 +489,13 @@ export default function Dashboard() {
         ...filesToDelete.files.map((file) => deleteFile(file.url))
       ]);
 
-      // Create updated article object
+      // Add pending uploads to the final values
       const updatedArticle = {
         ...articleToEdit,
         title: values.title,
         content: values.content,
-        images: values.images,
-        files: values.files,
+        images: [...values.images, ...pendingUploads.images],
+        files: [...(values.files || []), ...pendingUploads.files],
         lastEdited: new Date().toISOString(),
       };
 
@@ -503,7 +528,8 @@ export default function Dashboard() {
       // Refresh the articles list
       fetchAnalytics();
 
-      // Clear the files to delete
+      // Clear pending uploads after successful save
+      setPendingUploads({ images: [], files: [] });
       setFilesToDelete({ images: [], files: [] });
     } catch (error) {
       console.error("Error updating article:", error);
@@ -516,6 +542,7 @@ export default function Dashboard() {
     }
   }
 
+  // Update handleDialogClose to clean up pending uploads
   const handleDialogClose = async (type: 'create' | 'edit') => {
     if (type === 'create') {
       // Clean up any uploaded files when canceling creation
@@ -536,9 +563,20 @@ export default function Dashboard() {
       setIsDialogOpen(false);
       form.reset();
     } else {
+      // Delete any pending uploads that weren't saved
+      try {
+        await Promise.all([
+          ...pendingUploads.images.map(url => deleteFile(url)),
+          ...pendingUploads.files.map(file => deleteFile(file.url))
+        ]);
+      } catch (error) {
+        console.error('Error cleaning up pending uploads:', error);
+      }
+      
       setIsEditDialogOpen(false);
       editForm.reset();
-      setFilesToDelete({ images: [], files: [] }); // Clear pending deletions
+      setPendingUploads({ images: [], files: [] });
+      setFilesToDelete({ images: [], files: [] });
     }
   };
 
