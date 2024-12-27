@@ -2,16 +2,35 @@
 
 import { Input } from "@/components/ui/input"
 import { Search } from 'lucide-react'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Article } from '@/types/article'
 import { useRouter } from 'next/navigation'
 
+// Cache interface
+interface Cache {
+  [query: string]: {
+    results: Article[];
+    timestamp: number;
+  }
+}
 
-export default function SearchBar() {
+export default function SearchBar({ initialArticles }: { initialArticles: Article[] }) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Article[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const router = useRouter();
+  
+  // Create a cache ref that persists between renders
+  const searchCache = useRef<Cache>({});
+  const localArticles = useRef<Article[]>(initialArticles);
+
+  const searchLocalArticles = (searchQuery: string): Article[] => {
+    const normalizedQuery = searchQuery.toLowerCase();
+    return localArticles.current.filter(article =>
+      article.title.toLowerCase().includes(normalizedQuery) ||
+      article.content.toLowerCase().includes(normalizedQuery)
+    ).slice(0, 5);
+  };
 
   const debouncedSearch = useCallback(
     async (searchQuery: string) => {
@@ -20,10 +39,35 @@ export default function SearchBar() {
         return;
       }
 
+      // First, check cache
+      const cached = searchCache.current[searchQuery];
+      if (cached && Date.now() - cached.timestamp < 300000) { // 5 minutes cache
+        setSuggestions(cached.results);
+        return;
+      }
+
+      // Then try local search
+      const localResults = searchLocalArticles(searchQuery);
+      if (localResults.length > 0) {
+        setSuggestions(localResults);
+        // Cache the results
+        searchCache.current[searchQuery] = {
+          results: localResults,
+          timestamp: Date.now()
+        };
+        return;
+      }
+
+      // Only if local search yields no results, call API
       try {
         const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
         const data = await response.json();
         setSuggestions(data.results);
+        // Cache the API results
+        searchCache.current[searchQuery] = {
+          results: data.results,
+          timestamp: Date.now()
+        };
       } catch (error) {
         console.error('Search failed:', error);
         setSuggestions([]);
@@ -35,7 +79,7 @@ export default function SearchBar() {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       debouncedSearch(query);
-    }, 300);
+    }, 500); // Increased debounce time
 
     return () => clearTimeout(timeoutId);
   }, [query, debouncedSearch]);

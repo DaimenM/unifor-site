@@ -35,7 +35,7 @@ export default async function Home({
             size={"icon"}
           />
           <div className="flex-1">
-            <SearchBar />
+            <SearchBar initialArticles={articles} />
           </div>
         </div>
       </div>
