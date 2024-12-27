@@ -9,12 +9,13 @@ import {
   BreadcrumbSeparator 
 } from "@/components/ui/breadcrumb";
 
-export default async function SearchResults({
-  searchParams,
-}: {
-  searchParams: { q: string };
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
+
+export default async function SearchResults(props: {
+  searchParams: SearchParams;
 }) {
-  const query = searchParams.q;
+  const searchParams = await props.searchParams;
+  const query = searchParams.q as string;
   const articles = await searchArticles(query);
 
   return (
@@ -32,7 +33,7 @@ export default async function SearchResults({
       </Breadcrumb>
 
       <h1 className="text-2xl font-bold text-red-600 mb-4">
-        Search Results for "{query}"
+        Search Results for &quot;{query}&quot;
       </h1>
 
       {articles.length > 0 ? (

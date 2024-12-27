@@ -19,19 +19,15 @@ import { stripMarkdown } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
-type Props = {
-  params: Promise<{ id: string }>;
-  searchParams: { from: string; q: string };
-}
+type Params = Promise<{ id: string }>
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
-export async function generateMetadata(
-  { params }: Props,
-): Promise<Metadata> {
-  // read route params
-  const id = (await params).id
- 
-  // fetch data
-  const article = await getArticle(id);
+export async function generateMetadata(props: {
+  params: Params;
+  searchParams: SearchParams;
+}): Promise<Metadata> {
+  const params = await props.params;
+  const article = await getArticle(params.id);
 
   if (!article) {
     return {
@@ -52,20 +48,25 @@ export async function generateMetadata(
   return pageMetadata;
 }
 
-export default async function ArticlePage({ params, searchParams }: Props) {
-  const id = (await params).id;
+export default async function ArticlePage(props: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  
   const isFromSearch = searchParams.from === 'search';
   const searchQuery = searchParams.q;
   
   // Fetch article server-side
-  const article = await getArticle(id);
+  const article = await getArticle(params.id);
   
   if (!article) {
     return notFound();
   }
 
   return (
-    <AnalyticsWrapper articleId={id}>
+    <AnalyticsWrapper articleId={params.id}>
       <main className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-6 animate-fade-up [animation-fill-mode:forwards]">
           <SidebarTrigger
