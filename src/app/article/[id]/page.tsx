@@ -20,7 +20,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
 type Props = {
-  params: Promise<{ id: string }>
+  params: Promise<{ id: string }>;
+  searchParams: { from: string; q: string };
 }
 
 export async function generateMetadata(
@@ -51,9 +52,10 @@ export async function generateMetadata(
   return pageMetadata;
 }
 
-export default async function ArticlePage(props: Props) {
-  const params = await props.params;
-  const id = params.id;
+export default async function ArticlePage({ params, searchParams }: Props) {
+  const id = (await params).id;
+  const isFromSearch = searchParams.from === 'search';
+  const searchQuery = searchParams.q;
   
   // Fetch article server-side
   const article = await getArticle(id);
@@ -78,6 +80,18 @@ export default async function ArticlePage(props: Props) {
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
+              {isFromSearch && (
+                <>
+                  <BreadcrumbItem>
+                    <BreadcrumbLink asChild>
+                      <Link href={`/search?q=${searchQuery}`}>
+                        Search Results
+                      </Link>
+                    </BreadcrumbLink>
+                  </BreadcrumbItem>
+                  <BreadcrumbSeparator />
+                </>
+              )}
               <BreadcrumbItem>
                 <BreadcrumbPage>{article.title}</BreadcrumbPage>
               </BreadcrumbItem>
@@ -140,4 +154,3 @@ export default async function ArticlePage(props: Props) {
     </AnalyticsWrapper>
   );
 }
-

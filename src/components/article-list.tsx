@@ -4,11 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import { stripMarkdown } from "@/lib/utils";
 
-type ArticleListProps = {
+interface ArticleListProps {
   articles: Article[];
-};
+  urlPrefix?: string;
+  urlSuffix?: string;
+}
 
-export default function ArticleList({ articles }: ArticleListProps) {
+export default function ArticleList({ articles, urlPrefix = '/article/', urlSuffix = '' }: ArticleListProps) {
   if (articles.length === 0) {
     return (
       <div className="text-center py-10 text-gray-500">
@@ -21,7 +23,7 @@ export default function ArticleList({ articles }: ArticleListProps) {
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {articles.map((article, index) => (
         <Link 
-          href={`/article/${article.id}`} 
+          href={`${urlPrefix}${article.id}${urlSuffix}`} 
           key={article.id}
           className="animate-fade-up opacity-0"
           style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'forwards' }}
@@ -52,4 +54,3 @@ export default function ArticleList({ articles }: ArticleListProps) {
     </div>
   );
 }
-

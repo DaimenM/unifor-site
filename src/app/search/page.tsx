@@ -36,7 +36,11 @@ export default async function SearchResults({
       </h1>
 
       {articles.length > 0 ? (
-        <ArticleList articles={articles} />
+        <ArticleList 
+          articles={articles} 
+          urlPrefix={`/article/`}
+          urlSuffix={`?from=search&q=${encodeURIComponent(query)}`}
+        />
       ) : (
         <div className="text-center py-8 text-gray-500">
           No results found
