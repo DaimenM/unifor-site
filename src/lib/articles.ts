@@ -50,3 +50,12 @@ export async function seedArticles(articles: Article[]) {
     await createArticle(article);
   }
 }
+
+export async function searchArticles(query: string): Promise<Article[]> {
+  const articles = await getAllArticles();
+  
+  return articles.filter(article => 
+    article.title.toLowerCase().includes(query.toLowerCase()) ||
+    article.content.toLowerCase().includes(query.toLowerCase())
+  );
+}
