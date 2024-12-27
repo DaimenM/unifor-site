@@ -61,20 +61,26 @@ export default function SearchBar() {
       />
       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
       
-      {showSuggestions && suggestions.length > 0 && (
+      {showSuggestions && query.length >= 2 && (
         <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-          {suggestions.map((article) => (
-            <div
-              key={article.id}
-              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-              onClick={() => {
-                setQuery('');
-                router.push(`/article/${article.id}`);
-              }}
-            >
-              <p className="font-medium">{article.title}</p>
+          {suggestions.length > 0 ? (
+            suggestions.map((article) => (
+              <div
+                key={article.id}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => {
+                  setQuery('');
+                  router.push(`/article/${article.id}`);
+                }}
+              >
+                <p className="font-medium">{article.title}</p>
+              </div>
+            ))
+          ) : (
+            <div className="px-4 py-2 text-gray-500">
+              No results found
             </div>
-          ))}
+          )}
         </div>
       )}
     </div>
