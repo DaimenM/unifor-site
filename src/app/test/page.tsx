@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast"
 export default function TestPage() {
   const { toast } = useToast()
 
-  const handleClick = async () => {
+  const handleDownload = async () => {
     try {
       const response = await fetch("/api/test")
       if (!response.ok) {
@@ -44,11 +44,40 @@ export default function TestPage() {
     }
   }
 
+  const handleSeed = async () => {
+    try {
+      const response = await fetch("/api/test", {
+        method: "POST",
+      })
+      
+      if (!response.ok) {
+        throw new Error("Failed to seed articles")
+      }
+
+      toast({
+        title: "Success",
+        description: "Articles seeded successfully",
+        variant: "default",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to seed articles",
+        variant: "destructive",
+      })
+    }
+  }
+
   return (
     <div className="container mx-auto p-8">
-      <Button onClick={handleClick} className="mb-8">
-        Download Articles
-      </Button>
+      <div className="flex gap-4">
+        <Button onClick={handleDownload}>
+          Download Articles
+        </Button>
+        <Button onClick={handleSeed} variant="secondary">
+          Seed Articles to KV
+        </Button>
+      </div>
     </div>
   )
 }

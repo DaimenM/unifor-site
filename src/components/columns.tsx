@@ -36,7 +36,17 @@ export const columns = ({ onDeleteClick, onEditClick, onArchiveClick }: ColumnsP
   },
   {
     accessorKey: "title",
-    header: "Title",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Title
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      )
+    },
     cell: ({ row }) => {
       return (
         <div className="flex items-center gap-2">
@@ -73,26 +83,12 @@ export const columns = ({ onDeleteClick, onEditClick, onArchiveClick }: ColumnsP
   },
   {
     id: "lastEdited",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Last Edited
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: "Last Edited",
     cell: ({ row }) => {
       const lastEdited = row.original.lastEdited || row.original.date
       return format(new Date(lastEdited), "PPp")
     },
-    sortingFn: (rowA, rowB) => {
-      const dateA = new Date(rowA.original.lastEdited || rowA.original.date).getTime()
-      const dateB = new Date(rowB.original.lastEdited || rowB.original.date).getTime()
-      return dateA - dateB
-    }
+    enableSorting: false
   },
   {
     accessorKey: "attachments",

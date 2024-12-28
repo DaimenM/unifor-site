@@ -33,7 +33,7 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "lastEdited", desc: true }
+    { id: "title", desc: false }
   ])
 
   const table = useReactTable({
