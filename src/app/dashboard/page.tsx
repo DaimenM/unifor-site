@@ -97,18 +97,33 @@ export default function Dashboard() {
   const [articleToDelete, setArticleToDelete] = useState<Article | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [articleToEdit, setArticleToEdit] = useState<Article | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [editUploading, setEditUploading] = useState(false);
   const [filesToDelete, setFilesToDelete] = useState<{
     images: string[];
     files: { name: string; url: string; }[];
   }>({ images: [], files: [] });
-
-  // Add new state for tracking pending uploads
   const [pendingUploads, setPendingUploads] = useState<{
     images: string[];
     files: { name: string; url: string; }[];
   }>({ images: [], files: [] });
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+
+  const passwordFormSchema = z.object({
+    currentPassword: z.string().min(6, "Password must be at least 6 characters"),
+    newPassword: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Password must be at least 6 characters"),
+  }).refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
+
+  const passwordForm = useForm<z.infer<typeof passwordFormSchema>>({
+    resolver: zodResolver(passwordFormSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -631,6 +646,56 @@ export default function Dashboard() {
     }
   };
 
+  const handlePasswordChange = async (values: z.infer<typeof passwordFormSchema>) => {
+    const token = localStorage.getItem("auth-token");
+    if (!token) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "You must be logged in to change password",
+      });
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Success",
+          description: "Password changed successfully",
+        });
+        setIsPasswordDialogOpen(false);
+        passwordForm.reset();
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: data.message || "Failed to change password",
+        });
+      }
+    } catch (error) {
+      console.error("Password change error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to change password",
+      });
+    }
+  };
+
   return (
     <>
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
@@ -668,6 +733,12 @@ export default function Dashboard() {
               className="flex items-center gap-2"
             >
               <Plus className="h-4 w-4" /> New Article
+            </Button>
+            <Button
+              onClick={() => setIsPasswordDialogOpen(true)}
+              variant="outline"
+            >
+              Change Password
             </Button>
             <Button onClick={handleLogout} variant="outline">
               Logout
@@ -1157,6 +1228,67 @@ export default function Dashboard() {
           </Card>
         </div>
       </main>
+
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>
+              Enter your current password and a new password to change it.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...passwordForm}>
+            <form onSubmit={passwordForm.handleSubmit(handlePasswordChange)} className="space-y-4">
+              <FormField
+                control={passwordForm.control}
+                name="currentPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Current Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Enter current password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={passwordForm.control}
+                name="newPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>New Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Enter new password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={passwordForm.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirm New Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Confirm new password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <DialogFooter>
+                <Button type="submit">Change Password</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
