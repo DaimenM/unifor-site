@@ -18,13 +18,14 @@ export async function getArticle(id: string): Promise<Article | null> {
 }
 
 export async function getAllArticles(): Promise<Article[]> {
-  // Get all article IDs
+  // Get all article IDs (1 operation)
   const articleIds = await kv.smembers(ARTICLE_IDS_KEY);
   
-  // Get all articles in parallel
-  const articles = await Promise.all(
-    articleIds.map(id => kv.get(`${ARTICLE_PREFIX}${id}`))
-  );
+  // Create array of full keys
+  const keys = articleIds.map(id => `${ARTICLE_PREFIX}${id}`);
+  
+  // Fetch all articles in a single operation
+  const articles = await kv.mget(...keys);
   
   return articles.filter((article): article is Article => article !== null);
 }
