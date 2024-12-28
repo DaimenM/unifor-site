@@ -1,6 +1,5 @@
 import { getArticles } from "@/data/articles";
 import ArticleList from "@/components/article-list";
-import SearchBar from "@/components/search-bar";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Pagination,
@@ -34,9 +33,6 @@ export default async function Archive({
             className="md:hidden text-red-600 flex-shrink-0 -translate-y-4"
             size={"icon"}
           />
-          <div className="flex-1">
-            <SearchBar />
-          </div>
         </div>
       </div>
 
