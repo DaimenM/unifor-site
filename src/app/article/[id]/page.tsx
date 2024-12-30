@@ -78,7 +78,7 @@ export default async function ArticlePage(props: {
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
                   <Link href="/">Home</Link>
-                </BreadcrumbLink>
+                </BreadcrumbLink> 
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               {isFromSearch && (
