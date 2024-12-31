@@ -17,7 +17,7 @@ import ReactMarkdown from 'react-markdown';
 import { FileAttachment } from "@/components/file-attachment";
 import { stripMarkdown } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ExternalLink } from "lucide-react";
 
 type Params = Promise<{ id: string }>
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
@@ -128,7 +128,18 @@ export default async function ArticlePage(props: {
             <h2 className="text-2xl font-bold text-red-600 mb-4">Attachments</h2>
             <div className="grid gap-4">
               {article.files.map((file, index) => (
-                <div key={index} className="border rounded-lg p-4">
+                <div key={index} className="border rounded-lg p-4 relative">
+                  <div className="md:hidden absolute top-4 right-4">
+                    <a
+                      href={file.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      aria-label="Open in new tab"
+                    >
+                      <ExternalLink className="h-5 w-5 text-gray-500" />
+                    </a>
+                  </div>
                   <h3 className="font-semibold mb-2">{file.name}</h3>
                   <FileAttachment file={file} />
                 </div>
